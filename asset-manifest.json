@@ -1,0 +1,16 @@
+{
+  "files": {
+    "main.css": "/json-diff-app/static/css/main.9c5ee5c0.css",
+    "main.js": "/json-diff-app/static/js/main.0db9ff32.js",
+    "static/js/510.88c5f569.chunk.js": "/json-diff-app/static/js/510.88c5f569.chunk.js",
+    "static/media/zstd.wasm": "/json-diff-app/static/media/zstd.873ddd8944b409c00509.wasm",
+    "index.html": "/json-diff-app/index.html",
+    "main.9c5ee5c0.css.map": "/json-diff-app/static/css/main.9c5ee5c0.css.map",
+    "main.0db9ff32.js.map": "/json-diff-app/static/js/main.0db9ff32.js.map",
+    "510.88c5f569.chunk.js.map": "/json-diff-app/static/js/510.88c5f569.chunk.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.9c5ee5c0.css",
+    "static/js/main.0db9ff32.js"
+  ]
+}
