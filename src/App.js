@@ -6,6 +6,7 @@ import ace from 'ace-builds';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
+import Footer from './Footer';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -62,8 +63,8 @@ const App = () => {
       const parsedJson1 = JSON.parse(json1);
       const parsedJson2 = JSON.parse(json2);
 
-      const sortedJson1 = JSON.stringify(sortObject(parsedJson1), null, 2);
-      const sortedJson2 = JSON.stringify(sortObject(parsedJson2), null, 2);
+      const sortedJson1 = JSON.stringify(sortObject(parsedJson1), null, 2).replace(/\r\n|\r/g, '\n');
+      const sortedJson2 = JSON.stringify(sortObject(parsedJson2), null, 2).replace(/\r\n|\r/g, '\n');
 
       const dmp = new diff_match_patch();
       const diffs = dmp.diff_main(sortedJson1, sortedJson2);
@@ -642,7 +643,7 @@ const App = () => {
   return (
     <>
       <Header theme={theme} toggleTheme={toggleTheme} wrapTextEnabled={wrapTextEnabled} toggleWrapText={toggleWrapText} />
-      <Container className="mt-4 pt-5">
+      <Container className="mt-4 pt-5 content-extra-padding">
         <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
           <Nav.Item>
             <Nav.Link eventKey="diff">JSON Diff</Nav.Link>
@@ -666,11 +667,7 @@ const App = () => {
         <div className="mt-3">{renderContent()}</div>
       </Container>
 
-      <footer className="footer">
-        <Container>
-          <p>&copy; 2025 JSON Tools. All rights reserved.</p>
-        </Container>
-      </footer>
+      <Footer />
     </>
   );
 };

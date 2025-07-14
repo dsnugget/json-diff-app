@@ -36,3 +36,91 @@
     transform: rotate(360deg);
   }
 }
+
+.diff-marker-removed {
+  background-color: #ffebe9; /* Light red for removed lines (light theme) */
+  position: absolute;
+  z-index: 2;
+}
+
+.diff-marker-added {
+  background-color: #e6ffed; /* Light green for added lines (light theme) */
+  position: absolute;
+  z-index: 2;
+}
+
+/* Light theme styles */
+body.light {
+  background-color: #ffffff;
+  color: #212529; /* Dark text for light background */
+}
+
+/* Dark theme styles */
+body.dark {
+  background-color: #282c34;
+  color: #f8f9fa; /* Light text for dark background */
+}
+
+/* Adjust Ace Editor themes based on overall theme */
+.ace_editor.ace_theme_github {
+  background-color: #ffffff !important;
+  color: #212529 !important;
+}
+
+.ace_editor.ace_theme_dracula {
+  background-color: #282c34 !important;
+  color: #f8f9fa !important;
+}
+
+/* Dark mode specific styles for diff markers */
+body.dark .diff-marker-removed {
+  background-color: #8b0000; /* Darker red for removed lines in dark mode */
+}
+
+body.dark .diff-marker-added {
+  background-color: #006400; /* Darker green for added lines in dark mode */
+}
+
+/* Ensure text in diff markers is visible in dark mode */
+body.dark .diff-marker-removed .ace_token,
+body.dark .diff-marker-added .ace_token {
+  color: #f8f9fa !important; /* Light text for highlighted lines in dark mode */
+}
+
+/* Footer styles */
+.footer {
+  background-color: #f8f9fa; /* Light grey for light theme */
+  color: #212529;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  position: relative;
+  bottom: 0;
+  width: 100%;
+}
+
+body.dark .footer {
+  background-color: #343a40; /* Dark grey for dark theme */
+  color: #f8f9fa;
+}
+
+.footer-blue-bar {
+  height: 2px;
+  background-color: #007bff; /* Blue color */
+  width: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.content-extra-padding {
+  padding-bottom: 100px; /* Adjust this value as needed */
+}
+
+/* Tab styles */
+.nav-tabs .nav-link:not(.active) {
+  color: #000000; /* Black for unselected tabs in light mode */
+}
+
+body.dark .nav-tabs .nav-link:not(.active) {
+  color: #adb5bd; /* Light grey for unselected tabs in dark mode */
+}

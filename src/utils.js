@@ -41,3 +41,30 @@ export const parseRecursive = (value) => {
     return value;
   }
 };
+
+// Helper function to sort object keys recursively
+export const sortObject = (obj) => {
+  if (typeof obj !== 'object' || obj === null) {
+    return obj;
+  }
+
+  if (Array.isArray(obj)) {
+    // Recursively sort elements, then sort the array itself.
+    // For objects within an array, sort them by their stringified representation
+    // to ensure a consistent order.
+    return obj.map(sortObject).sort((a, b) => {
+      const stringA = JSON.stringify(a);
+      const stringB = JSON.stringify(b);
+      if (stringA < stringB) return -1;
+      if (stringA > stringB) return 1;
+      return 0;
+    });
+  }
+
+  return Object.keys(obj)
+    .sort()
+    .reduce((result, key) => {
+      result[key] = sortObject(obj[key]);
+      return result;
+    }, {});
+};
