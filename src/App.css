@@ -124,6 +124,11 @@ body.dark .nav-tabs .nav-link:not(.active) {
   color: #adb5bd; /* Light grey for unselected tabs in dark mode */
 }
 
-.nav-tabs .nav-link.active {
-  border-bottom: 4px solid #006400; /* Thick dark green border */
+.form-check-input:checked {
+  background-color: #39FF14 !important; /* Fluorescent green */
+  border-color: #39FF14 !important;
+}
+
+.form-check-input:focus:checked {
+  box-shadow: 0 0 0 0.25rem rgba(57, 255, 20, 0.25) !important; /* Fluorescent green glow */
 }

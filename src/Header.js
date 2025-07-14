@@ -9,7 +9,7 @@ const Header = ({ theme, toggleTheme, wrapTextEnabled, toggleWrapText }) => {
     <>
       <Navbar expand="lg" fixed="top" className="custom-header">
         <Container>
-          <Navbar.Brand href="#" style={{ fontWeight: 'bold' }}>JSON Tools</Navbar.Brand>
+          <Navbar.Brand href="#" style={{ fontWeight: 'bold', fontFamily: 'Courier New' }}>JSON Tools</Navbar.Brand>
           <Form className="d-flex align-items-center">
             <Form.Check 
               type="switch"
