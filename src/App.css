@@ -93,9 +93,10 @@ body.dark .diff-marker-added .ace_token {
   color: #212529;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
-  position: relative;
+  position: fixed;
   bottom: 0;
   width: 100%;
+  z-index: 1000; /* Ensure it's above other content */
 }
 
 body.dark .footer {
@@ -123,4 +124,8 @@ body.dark .footer {
 
 body.dark .nav-tabs .nav-link:not(.active) {
   color: #adb5bd; /* Light grey for unselected tabs in dark mode */
+}
+
+.nav-tabs .nav-link.active {
+  border-bottom: 4px solid #006400; /* Thick dark green border */
 }

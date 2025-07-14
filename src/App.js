@@ -646,7 +646,7 @@ const App = () => {
       <Container className="mt-4 pt-5 content-extra-padding">
         <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
           <Nav.Item>
-            <Nav.Link eventKey="diff">JSON Diff</Nav.Link>
+            <Nav.Link eventKey="diff" className="json-diff-tab">JSON Diff</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="format">JSON Formatter</Nav.Link>
