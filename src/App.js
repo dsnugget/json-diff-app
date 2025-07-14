@@ -283,7 +283,7 @@ const App = () => {
               value={json1}
               name="diff_left"
               editorProps={{ $blockScrolling: true }}
-              height="600px"
+              height="650px"
               width="100%"
               readOnly
               setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -299,7 +299,7 @@ const App = () => {
               value={json2}
               name="diff_right"
               editorProps={{ $blockScrolling: true }}
-              height="600px"
+              height="650px"
               width="100%"
               readOnly
               setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -327,7 +327,7 @@ const App = () => {
                   value={json1}
                   name="json1_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -343,7 +343,7 @@ const App = () => {
                   value={json2}
                   name="json2_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -376,7 +376,7 @@ const App = () => {
                   value={formatInput}
                   name="format_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -391,7 +391,7 @@ const App = () => {
                   value={formattedOutput}
                   name="formatted_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -431,7 +431,7 @@ const App = () => {
                   value={zstdInput}
                   name="zstd_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -446,7 +446,7 @@ const App = () => {
                   value={zstdOutput}
                   name="zstd_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -486,7 +486,7 @@ const App = () => {
                   value={escapeInput}
                   name="escape_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -501,7 +501,7 @@ const App = () => {
                   value={unescapeOutput}
                   name="unescape_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -541,7 +541,7 @@ const App = () => {
                   value={compressInput}
                   name="compress_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -556,7 +556,7 @@ const App = () => {
                   value={compressedOutput}
                   name="compressed_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -596,7 +596,7 @@ const App = () => {
                   value={minifyInput}
                   name="minify_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
@@ -611,7 +611,7 @@ const App = () => {
                   value={minifiedOutput}
                   name="minified_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="500px"
+                  height="650px"
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
