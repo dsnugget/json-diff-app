@@ -7,7 +7,7 @@ const Header = ({ theme, toggleTheme, wrapTextEnabled, toggleWrapText }) => {
 
   return (
     <>
-      <Navbar bg={navbarBg} variant={navbarVariant} expand="lg" fixed="top">
+      <Navbar expand="lg" fixed="top" className="custom-header">
         <Container>
           <Navbar.Brand href="#" style={{ fontWeight: 'bold' }}>JSON Tools</Navbar.Brand>
           <Form className="d-flex align-items-center">
