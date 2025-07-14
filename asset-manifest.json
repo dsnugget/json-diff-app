@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/json-diff-app/static/css/main.86641c06.css",
-    "main.js": "/json-diff-app/static/js/main.bcd44b67.js",
+    "main.css": "/json-diff-app/static/css/main.2055c32b.css",
+    "main.js": "/json-diff-app/static/js/main.416cf413.js",
     "static/js/510.88c5f569.chunk.js": "/json-diff-app/static/js/510.88c5f569.chunk.js",
     "static/media/zstd.wasm": "/json-diff-app/static/media/zstd.873ddd8944b409c00509.wasm",
     "index.html": "/json-diff-app/index.html",
-    "main.86641c06.css.map": "/json-diff-app/static/css/main.86641c06.css.map",
-    "main.bcd44b67.js.map": "/json-diff-app/static/js/main.bcd44b67.js.map",
+    "main.2055c32b.css.map": "/json-diff-app/static/css/main.2055c32b.css.map",
+    "main.416cf413.js.map": "/json-diff-app/static/js/main.416cf413.js.map",
     "510.88c5f569.chunk.js.map": "/json-diff-app/static/js/510.88c5f569.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.86641c06.css",
-    "static/js/main.bcd44b67.js"
+    "static/css/main.2055c32b.css",
+    "static/js/main.416cf413.js"
   ]
 }
