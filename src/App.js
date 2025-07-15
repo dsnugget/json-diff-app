@@ -1,12 +1,13 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { diff_match_patch } from 'diff-match-patch';
-import { Container, Row, Col, Form, Button, Card, Nav } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, Nav, Dropdown } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
 import Footer from './Footer';
+import JsonTreeView from './JsonTreeView';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
@@ -25,6 +26,8 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('diff');
   const [formatInput, setFormatInput] = useState('');
   const [formattedOutput, setFormattedOutput] = useState('');
+  const [formattedViewMode, setFormattedViewMode] = useState('code'); // 'code' or 'tree'
+  const [treeSearchTerm, setTreeSearchTerm] = useState('');
   const [formatError, setFormatError] = useState('');
   const [zstdInput, setZstdInput] = useState('');
   const [zstdOutput, setZstdOutput] = useState('');
@@ -384,18 +387,45 @@ const App = () => {
             </Col>
             <Col md={6}>
               <Form.Group>
-                <Form.Label>Formatted JSON</Form.Label>
-                <AceEditor
-                  mode="json"
-                  theme={theme === 'light' ? 'github' : 'dracula'}
-                  value={formattedOutput}
-                  name="formatted_output_editor"
-                  editorProps={{ $blockScrolling: true }}
-                  height="650px"
-                  width="100%"
-                  readOnly
-                  setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
-                />
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <Form.Label className="mb-0">Formatted JSON</Form.Label>
+                  <Dropdown onSelect={(eventKey) => setFormattedViewMode(eventKey)}>
+                    <Dropdown.Toggle variant="secondary" id="dropdown-basic" size="sm">
+                      View: {formattedViewMode === 'code' ? 'Code' : 'Tree'}
+                    </Dropdown.Toggle>
+
+                    <Dropdown.Menu>
+                      <Dropdown.Item eventKey="code">Code View</Dropdown.Item>
+                      <Dropdown.Item eventKey="tree">Tree View</Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </div>
+                {formattedViewMode === 'code' ? (
+                  <AceEditor
+                    mode="json"
+                    theme={theme === 'light' ? 'github' : 'dracula'}
+                    value={formattedOutput}
+                    name="formatted_output_editor"
+                    editorProps={{ $blockScrolling: true }}
+                    height="650px"
+                    width="100%"
+                    readOnly
+                    setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
+                  />
+                ) : (
+                  <>
+                    <Form.Control
+                      type="text"
+                      placeholder="Search in tree view..."
+                      value={treeSearchTerm}
+                      onChange={(e) => setTreeSearchTerm(e.target.value)}
+                      className="mb-2"
+                    />
+                    <div style={{ border: '1px solid #ced4da', borderRadius: '0.25rem', minHeight: '650px', maxHeight: '650px', overflowY: 'auto', padding: '10px' }}>
+                      <JsonTreeView data={formattedOutput} searchTerm={treeSearchTerm} />
+                    </div>
+                  </>
+                )}
               </Form.Group>
             </Col>
           </Row>

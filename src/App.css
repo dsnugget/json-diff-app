@@ -20,6 +20,7 @@
 .custom-header .navbar-brand,
 .custom-header .form-check-label {
   color: white !important;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .App-link {
@@ -124,6 +125,10 @@ body.dark .nav-tabs .nav-link:not(.active) {
   color: #adb5bd; /* Light grey for unselected tabs in dark mode */
 }
 
+.nav-tabs .nav-link.active {
+  border-bottom: 4px solid #006400; /* Thick dark green border */
+}
+
 .form-check-input:checked {
   background-color: #39FF14 !important; /* Fluorescent green */
   border-color: #39FF14 !important;
@@ -131,4 +136,54 @@ body.dark .nav-tabs .nav-link:not(.active) {
 
 .form-check-input:focus:checked {
   box-shadow: 0 0 0 0.25rem rgba(57, 255, 20, 0.25) !important; /* Fluorescent green glow */
+}
+
+.json-tree-view {
+  font-family: 'Monaco', monospace;
+  font-size: 14px;
+}
+
+.json-node {
+  white-space: nowrap;
+}
+
+.json-node-label {
+  color: #881280; /* Purple for keys */
+}
+
+.json-node-value {
+  color: #1a0dab; /* Blue for string values */
+}
+
+.json-node-toggle {
+  cursor: pointer;
+  color: #00008b; /* Dark blue for toggles */
+  margin-right: 5px;
+}
+
+.json-node-toggle svg {
+  vertical-align: middle;
+}
+
+/* Dark theme adjustments for tree view */
+body.dark .json-node-label {
+  color: #9cdcfe; /* Lighter purple for keys in dark mode */
+}
+
+body.dark .json-node-value {
+  color: #569cd6; /* Lighter blue for string values in dark mode */
+}
+
+body.dark .json-node-toggle {
+  color: #d4d4d4; /* Lighter grey for toggles in dark mode */
+}
+
+.highlight {
+  background-color: yellow;
+  font-weight: bold;
+}
+
+body.dark .highlight {
+  background-color: #39FF14;
+  color: black;
 }
