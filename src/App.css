@@ -14,13 +14,13 @@
 }
 
 .custom-header {
-  background-color: #033dfc !important;
+  background-color: #f54275 !important;
 }
 
 .custom-header .navbar-brand,
 .custom-header .form-check-label {
   color: white !important;
-  font-family: 'Courier New', Courier, monospace;
+  font-family: 'Roboto', sans-serif;
 }
 
 .App-link {
@@ -105,7 +105,7 @@ body.dark .footer {
 
 .footer-blue-bar {
   height: 2px;
-  background-color: #007bff; /* Blue color */
+  background-color: #f54275; /* Pink color */
   width: 100%;
   position: absolute;
   top: 0;

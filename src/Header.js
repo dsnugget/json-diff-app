@@ -9,7 +9,7 @@ const Header = ({ theme, toggleTheme, wrapTextEnabled, toggleWrapText }) => {
     <>
       <Navbar expand="lg" fixed="top" className="custom-header">
         <Container>
-          <Navbar.Brand href="#" style={{ fontWeight: 'bold', fontFamily: 'Courier New' }}>JSON Tools</Navbar.Brand>
+          <Navbar.Brand href="#" style={{ fontWeight: 'bold', fontSize: '1.5rem' }}>{`{ JSON Tools }`}</Navbar.Brand>
           <Form className="d-flex align-items-center">
             <Form.Check 
               type="switch"
@@ -29,8 +29,7 @@ const Header = ({ theme, toggleTheme, wrapTextEnabled, toggleWrapText }) => {
           </Form>
         </Container>
       </Navbar>
-      <div style={{ height: '3px', backgroundColor: '#007bff', width: '100%', position: 'fixed', top: '56px', zIndex: '1030' }}></div>
-    </>
+      </>
   );
 };
 
