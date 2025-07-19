@@ -158,6 +158,10 @@ body.dark .nav-tabs .nav-link.active {
   font-family: 'Monaco', monospace;
   font-size: 14px;
   background-color: #ffffff; /* White background */
+  min-height: 200px; /* Ensure visible background even when empty */
+  padding: 10px; /* Add some padding */
+  border: 1px solid #ccc; /* Add a border for better visibility */
+  border-radius: 4px;
 }
 
 .json-node {

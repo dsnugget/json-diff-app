@@ -123,20 +123,24 @@ const JsonTreeView = ({ data, searchTerm = '' }) => {
     }
   }, [data]);
 
-  if (!data) {
-    return <div>Enter JSON to see tree view</div>;
-  }
-
-  try {
-    const parsedData = JSON.parse(data);
-    return (
-      <div className="json-tree-view">
-        <JsonNode label="root" value={parsedData} nodeCounts={nodeCounts} searchTerm={searchTerm} />
-      </div>
-    );
-  } catch (e) {
-    return <div className="text-danger">Invalid JSON for tree view: {e.message}</div>;
-  }
+  return (
+    <div className="json-tree-view">
+      {!data ? (
+        <div>Enter JSON to see tree view</div>
+      ) : (
+        (() => {
+          try {
+            const parsedData = JSON.parse(data);
+            return (
+              <JsonNode label="root" value={parsedData} nodeCounts={nodeCounts} searchTerm={searchTerm} />
+            );
+          } catch (e) {
+            return <div className="text-danger">Invalid JSON for tree view: {e.message}</div>;
+          }
+        })()
+      )}
+    </div>
+  );
 };
 
 export default JsonTreeView;
