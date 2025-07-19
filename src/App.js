@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { diff_match_patch } from 'diff-match-patch';
-import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -24,6 +24,8 @@ const App = () => {
   const [json2, setJson2] = useState('');
   const [diff, setDiff] = useState(null);
   const [error, setError] = useState('');
+  const [ignoreArrayOrder, setIgnoreArrayOrder] = useState(false);
+  const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
   const [activeTab, setActiveTab] = useState('diff');
   const [formatInput, setFormatInput] = useState('');
   const [formattedOutput, setFormattedOutput] = useState('');
@@ -355,6 +357,17 @@ const App = () => {
         </Row>
         <Row className="mt-3">
           <Col md={6}>
+            <div class="editor-header">
+              <Form.Label>JSON 1 Diff</Form.Label>
+              <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip id="tooltip-wrap-text-diff-left">Toggle Word Wrap</Tooltip>}
+                >
+                  <FaTextWidth />
+                </OverlayTrigger>
+              </Button>
+            </div>
             <AceEditor
               ref={leftEditorRef}
               mode="json"
@@ -371,6 +384,17 @@ const App = () => {
             />
           </Col>
           <Col md={6}>
+            <div class="editor-header">
+              <Form.Label>JSON 2 Diff</Form.Label>
+              <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                <OverlayTrigger
+                  placement="top"
+                  overlay={<Tooltip id="tooltip-wrap-text-diff-right">Toggle Word Wrap</Tooltip>}
+                >
+                  <FaTextWidth />
+                </OverlayTrigger>
+              </Button>
+            </div>
             <AceEditor
               ref={rightEditorRef}
               mode="json"
@@ -401,7 +425,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>JSON 1</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(json1)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-json1">Copy JSON 1</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-json1">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -427,7 +464,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>JSON 2</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(json2)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-json2">Copy JSON 2</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-json2">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -458,7 +508,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-format-input">Copy Input JSON</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-format-input">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -479,19 +542,42 @@ const App = () => {
                 Format
               </Button>
             </Col>
-            <Col md={5}>
+            <Col md={5} className="formatted-json-output-section">
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label class="mb-0">Formatted JSON</Form.Label>
                   <div class="d-flex align-items-center">
                     <Button variant="light" class="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
-                      <FaCode />
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-view-code">View as Code</Tooltip>}
+                      >
+                        <FaCode />
+                      </OverlayTrigger>
                     </Button>
                     <Button variant="light" class="copy-btn" onClick={() => setFormattedViewMode('tree')} active={formattedViewMode === 'tree'}>
-                      <FaSitemap />
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-view-tree">View as Tree</Tooltip>}
+                      >
+                        <FaSitemap />
+                      </OverlayTrigger>
                     </Button>
                     <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
-                      <FaCopy />
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-formatted-output">Copy Formatted JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </Button>
+                    <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-formatted-output">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
                     </Button>
                   </div>
                 </div>
@@ -516,7 +602,7 @@ const App = () => {
                       onChange={(e) => setTreeSearchTerm(e.target.value)}
                       class="mb-2"
                     />
-                    <div style={{ border: '1px solid #ced4da', borderRadius: '0.25rem', minHeight: '650px', maxHeight: '650px', overflowY: 'auto', padding: '10px' }}>
+                    <div className="json-tree-view-container">
                       <JsonTreeView data={formattedOutput} searchTerm={treeSearchTerm} />
                     </div>
                   </>
@@ -544,7 +630,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Base64 Zstd Compressed String</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(zstdInput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-zstd-input">Copy Base64 Zstd Compressed String</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-zstd-input">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -570,7 +669,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Decompressed JSON</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(zstdOutput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-zstd-output">Copy Decompressed JSON</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-zstd-output">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -607,7 +719,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Escaped JSON String</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(escapeInput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-escape-input">Copy Escaped JSON String</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-escape-input">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -633,7 +758,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Unescaped JSON</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(unescapeOutput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-unescape-output">Copy Unescaped JSON</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-unescape-output">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -670,7 +808,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(compressInput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-compress-input">Copy Input JSON</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-compress-input">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -696,7 +847,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Compressed Base64 String</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(compressedOutput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-compressed-output">Copy Compressed Base64 String</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-compressed-output">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -733,7 +897,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(minifyInput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-minify-input">Copy Input JSON</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-minify-input">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -759,7 +936,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Minified JSON</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(minifiedOutput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-minified-output">Copy Minified JSON</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-minified-output">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -796,7 +986,20 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON for Validation</Form.Label>
                   <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(validationInput)}>
-                    <FaCopy />
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-copy-validation-input">Copy Input JSON for Validation</Tooltip>}
+                    >
+                      <FaCopy />
+                    </OverlayTrigger>
+                  </Button>
+                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    <OverlayTrigger
+                      placement="top"
+                      overlay={<Tooltip id="tooltip-wrap-text-validation-input">Toggle Word Wrap</Tooltip>}
+                    >
+                      <FaTextWidth />
+                    </OverlayTrigger>
                   </Button>
                 </div>
                 <AceEditor
@@ -830,7 +1033,7 @@ const App = () => {
 
   return (
     <>
-      <Header theme={theme} toggleTheme={toggleTheme} wrapTextEnabled={wrapTextEnabled} toggleWrapText={toggleWrapText} />
+      <Header theme={theme} toggleTheme={toggleTheme} />
       <Container fluid className="mt-4 pt-5 content-extra-padding">
         <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
           <Nav.Item>
@@ -855,14 +1058,14 @@ const App = () => {
             <Nav.Link eventKey="validate">JSON Validator</Nav.Link>
           </Nav.Item>
         </Nav>
-        <div className="mt-3">{renderContent()}</div>
+        <div className="mt-3 content-bg">{renderContent()}</div>
       </Container>
 
       <Footer />
 
       <ToastContainer position="bottom-end" className="p-3">
         <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide bg={toastVariant}>
-          <Toast.Body className={toastVariant === 'danger' ? 'text-white' : 'text-dark'}>
+          <Toast.Body className="text-white">
             {toastMessage}
           </Toast.Body>
         </Toast>

@@ -154,14 +154,30 @@ body.dark .nav-tabs .nav-link.active {
   box-shadow: 0 0 0 0.25rem rgba(57, 255, 20, 0.25) !important; /* Fluorescent green glow */
 }
 
-.json-tree-view {
-  font-family: 'Monaco', monospace;
-  font-size: 14px;
-  background-color: #ffffff; /* White background */
-  min-height: 200px; /* Ensure visible background even when empty */
-  padding: 10px; /* Add some padding */
-  border: 1px solid #ccc; /* Add a border for better visibility */
-  border-radius: 4px;
+.json-tree-view-container {
+  /* Removed background-color from here */
+  border-radius: 0.25rem;
+  min-height: 650px;
+  max-height: 650px;
+  overflow-y: auto;
+  padding: 10px;
+}
+
+body.dark .json-tree-view-container {
+  border-color: #495057;
+}
+
+.formatted-json-section {
+  background-color: #ffffff; /* White background for the entire section */
+  border: 1px solid #ced4da;
+  border-radius: 0.25rem;
+  padding: 10px;
+  min-height: 650px; /* Ensure it takes up enough space */
+}
+
+body.dark .formatted-json-section {
+  background-color: #282c34; /* Dark background for dark mode */
+  border-color: #495057;
 }
 
 .json-node {
