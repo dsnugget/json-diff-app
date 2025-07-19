@@ -11,3 +11,11 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+/* Specific styles for the JSON tree view */
+.json-tree-view {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace; /* Monospace font for tree view */
+  font-size: 14px; /* Match editor font size */
+  line-height: 1.5; /* Match editor line height */
+}

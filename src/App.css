@@ -174,19 +174,7 @@ body.dark .json-tree-view-wrapper {
   padding-top: 10px; /* Add some padding between search bar and tree view */
 }
 
-/* Remove the old .formatted-json-section styles as they are no longer needed */
-/* .formatted-json-section {
-  background-color: #ffffff; /* White background for the entire section */
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-  padding: 10px;
-  min-height: 650px; /* Ensure it takes up enough space */
-} */
 
-/* body.dark .formatted-json-section {
-  background-color: #282c34; /* Dark background for dark mode */
-  border-color: #495057;
-} */
 
 .json-node {
   white-space: nowrap;
