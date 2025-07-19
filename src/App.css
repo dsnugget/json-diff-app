@@ -88,10 +88,12 @@ body.dark .diff-marker-added .ace_token {
 
 /* Footer styles */
 .footer {
-  background-color: #f8f9fa; /* Light grey for light theme */
-  color: #212529;
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
+  background-color: #212529; /* Dark grey */
+  color: #ffffff; /* White text */
+  height: 40px; /* Increased height */
+  display: flex;
+  align-items: center;
+  justify-content: center;
   position: fixed;
   bottom: 0;
   width: 100%;
@@ -99,8 +101,8 @@ body.dark .diff-marker-added .ace_token {
 }
 
 body.dark .footer {
-  background-color: #343a40; /* Dark grey for dark theme */
-  color: #f8f9fa;
+  background-color: #212529; /* Dark grey */
+  color: #ffffff; /* White text */
 }
 
 .footer-blue-bar {
@@ -186,4 +188,62 @@ body.dark .json-node-toggle {
 body.dark .highlight {
   background-color: #39FF14;
   color: black;
+}
+
+.container-fluid {
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 15px;
+}
+
+.btn {
+  min-width: 100px;
+}
+
+.action-button {
+  width: 150px;
+  color: white !important;
+  background-color: #f54275 !important;
+  border-color: #f54275 !important;
+}
+
+.editor-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  border-bottom: none;
+}
+
+body.dark .editor-header {
+  background-color: #343a40;
+  border-color: #555;
+}
+
+.copy-btn {
+  background-color: transparent !important;
+  border: none !important;
+  color: #000 !important;
+  width: auto !important;
+  padding: 5px !important;
+  margin-left: 5px !important;
+}
+
+.copy-btn:hover {
+  background-color: #eee !important;
+}
+
+.copy-btn:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+body.dark .copy-btn {
+  color: #fff !important;
+}
+
+body.dark .copy-btn:hover {
+  background-color: #444 !important;
 }

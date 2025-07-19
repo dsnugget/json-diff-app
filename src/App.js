@@ -1,8 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { diff_match_patch } from 'diff-match-patch';
-import { Container, Row, Col, Form, Button, Card, Nav, Dropdown } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
+import { FaCopy, FaCode, FaSitemap } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -41,9 +42,14 @@ const App = () => {
   const [minifyInput, setMinifyInput] = useState('');
   const [minifiedOutput, setMinifiedOutput] = useState('');
   const [minifyError, setMinifyError] = useState('');
+  const [validationInput, setValidationInput] = useState('');
+  const [validationAnnotations, setValidationAnnotations] = useState([]);
   const [syncScroll, setSyncScroll] = useState(true);
   const [theme, setTheme] = useState('light');
   const [wrapTextEnabled, setWrapTextEnabled] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [toastVariant, setToastVariant] = useState('success');
 
   const toggleWrapText = () => {
     setWrapTextEnabled((prev) => !prev);
@@ -52,6 +58,31 @@ const App = () => {
   const leftEditorRef = useRef(null);
   const rightEditorRef = useRef(null);
   const isScrollingRef = useRef(false);
+
+  const showNotification = (message, variant = 'success') => {
+    setToastMessage(message);
+    setToastVariant(variant);
+    setShowToast(true);
+  };
+
+  useEffect(() => {
+    const hash = window.location.hash.slice(1);
+    if (hash) {
+      try {
+        const decoded = atob(hash);
+        const data = JSON.parse(decoded);
+        if (data.json1) {
+          setJson1(data.json1);
+        }
+        if (data.json2) {
+          setJson2(data.json2);
+        }
+      } catch (e) {
+        console.error('Error parsing hash:', e);
+        showNotification('Error loading data from URL.', 'danger');
+      }
+    }
+  }, []);
 
   useEffect(() => {
     document.body.className = theme;
@@ -75,9 +106,15 @@ const App = () => {
 
       setDiff({ json1: sortedJson1, json2: sortedJson2, diffs });
       setError('');
+
+      const data = { json1, json2 };
+      const encoded = btoa(JSON.stringify(data));
+      window.location.hash = encoded;
+      showNotification('JSONs compared successfully!');
     } catch (e) {
       setError('Invalid JSON input. Please check your JSON and try again.');
       setDiff(null);
+      showNotification('Error comparing JSONs: ' + e.message, 'danger');
     }
   };
 
@@ -87,10 +124,12 @@ const App = () => {
       setFormattedOutput(JSON.stringify(parsedJson, null, 2));
       setFormatError('');
       setError(''); // Clear general error
+      showNotification('JSON formatted successfully!');
     } catch (e) {
       setFormatError(`Invalid JSON input: ${e.message}`);
       setFormattedOutput('');
       setError(''); // Clear general error
+      showNotification(`Error formatting JSON: ${e.message}`, 'danger');
     }
   };
 
@@ -115,8 +154,10 @@ const App = () => {
 
       const parsedJson = JSON.parse(decodedString);
       setZstdOutput(JSON.stringify(parsedJson, null, 2));
+      showNotification('Zstd decompressed successfully!');
     } catch (e) {
       setZstdError(`Decompression or JSON parsing error: ${e.message}`);
+      showNotification(`Error decompressing Zstd: ${e.message}`, 'danger');
     }
   };
 
@@ -147,10 +188,11 @@ const App = () => {
 
       setUnescapeOutput(JSON.stringify(finalOutput, null, 2));
       console.log('9. Final output set to state:', JSON.stringify(finalOutput, null, 2));
-
+      showNotification('JSON unescaped and formatted successfully!');
     } catch (e) {
       console.error('General error in handleUnescapeJson:', e);
       setUnescapeError(`Error unescaping or parsing JSON: ${e.message}`);
+      showNotification(`Error unescaping JSON: ${e.message}`, 'danger');
     }
   };
 
@@ -176,9 +218,10 @@ const App = () => {
         binary += String.fromCharCode(bytes[i]);
       }
       setCompressedOutput(btoa(binary));
-
+      showNotification('JSON compressed successfully!');
     } catch (e) {
       setCompressError(`Compression or JSON parsing error: ${e.message}`);
+      showNotification(`Error compressing JSON: ${e.message}`, 'danger');
     }
   };
 
@@ -188,8 +231,37 @@ const App = () => {
     try {
       const parsedJson = JSON.parse(minifyInput);
       setMinifiedOutput(JSON.stringify(parsedJson));
+      showNotification('JSON minified successfully!');
     } catch (e) {
       setMinifyError(`Minification or JSON parsing error: ${e.message}`);
+      showNotification(`Error minifying JSON: ${e.message}`, 'danger');
+    }
+  };
+
+  const handleValidateJson = () => {
+    setValidationAnnotations([]);
+    try {
+      JSON.parse(validationInput);
+      showNotification('JSON is valid!', 'success');
+    } catch (e) {
+      const line = e.message.match(/at position (\d+)/);
+      let row = 0;
+      let column = 0;
+      if (line) {
+        const position = parseInt(line[1], 10);
+        const lines = validationInput.substring(0, position).split('\n');
+        row = lines.length - 1;
+        column = lines[lines.length - 1].length;
+      }
+      setValidationAnnotations([
+        {
+          row: row,
+          column: column,
+          type: 'error',
+          text: e.message,
+        },
+      ]);
+      showNotification(`JSON is invalid: ${e.message}`, 'danger');
     }
   };
 
@@ -228,6 +300,10 @@ const App = () => {
       isScrollingRef.current = false;
     }, 100);
   }, [syncScroll]);
+
+  const copyToClipboard = (text) => {
+    navigator.clipboard.writeText(text);
+  };
 
   const renderDiff = () => {
     if (error) {
@@ -320,9 +396,14 @@ const App = () => {
       return (
         <>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>JSON 1</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>JSON 1</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(json1)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -336,9 +417,19 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+              <Button variant="primary" onClick={handleCompare} className="mb-2 action-button">
+                Compare
+              </Button>
+            </Col>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>JSON 2</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>JSON 2</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(json2)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -353,13 +444,6 @@ const App = () => {
               </Form.Group>
             </Col>
           </Row>
-          <Row className="mt-3">
-            <Col className="text-center">
-              <Button variant="primary" onClick={handleCompare}>
-                Compare
-              </Button>
-            </Col>
-          </Row>
           {renderDiff()}
         </>
       );
@@ -369,9 +453,14 @@ const App = () => {
       return (
         <>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Input JSON</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Input JSON</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -385,20 +474,26 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+              <Button variant="primary" onClick={handleFormat} className="mb-2 action-button">
+                Format
+              </Button>
+            </Col>
+            <Col md={5}>
               <Form.Group>
-                <div className="d-flex justify-content-between align-items-center mb-2">
-                  <Form.Label className="mb-0">Formatted JSON</Form.Label>
-                  <Dropdown onSelect={(eventKey) => setFormattedViewMode(eventKey)}>
-                    <Dropdown.Toggle variant="secondary" id="dropdown-basic" size="sm">
-                      View: {formattedViewMode === 'code' ? 'Code' : 'Tree'}
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu>
-                      <Dropdown.Item eventKey="code">Code View</Dropdown.Item>
-                      <Dropdown.Item eventKey="tree">Tree View</Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
+                <div class="editor-header">
+                  <Form.Label class="mb-0">Formatted JSON</Form.Label>
+                  <div class="d-flex align-items-center">
+                    <Button variant="light" class="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
+                      <FaCode />
+                    </Button>
+                    <Button variant="light" class="copy-btn" onClick={() => setFormattedViewMode('tree')} active={formattedViewMode === 'tree'}>
+                      <FaSitemap />
+                    </Button>
+                    <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
+                      <FaCopy />
+                    </Button>
+                  </div>
                 </div>
                 {formattedViewMode === 'code' ? (
                   <AceEditor
@@ -419,7 +514,7 @@ const App = () => {
                       placeholder="Search in tree view..."
                       value={treeSearchTerm}
                       onChange={(e) => setTreeSearchTerm(e.target.value)}
-                      className="mb-2"
+                      class="mb-2"
                     />
                     <div style={{ border: '1px solid #ced4da', borderRadius: '0.25rem', minHeight: '650px', maxHeight: '650px', overflowY: 'auto', padding: '10px' }}>
                       <JsonTreeView data={formattedOutput} searchTerm={treeSearchTerm} />
@@ -427,13 +522,6 @@ const App = () => {
                   </>
                 )}
               </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col className="text-center">
-              <Button variant="primary" onClick={handleFormat}>
-                Format
-              </Button>
             </Col>
           </Row>
           {formatError && (
@@ -451,9 +539,14 @@ const App = () => {
       return (
         <>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Base64 Zstd Compressed String</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Base64 Zstd Compressed String</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(zstdInput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="text"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -467,9 +560,19 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+              <Button variant="primary" onClick={handleZstdDecompress} className="mb-2 action-button">
+                Decompress
+              </Button>
+            </Col>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Decompressed JSON</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Decompressed JSON</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(zstdOutput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -482,13 +585,6 @@ const App = () => {
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col className="text-center">
-              <Button variant="primary" onClick={handleZstdDecompress}>
-                Decompress
-              </Button>
             </Col>
           </Row>
           {zstdError && (
@@ -506,9 +602,14 @@ const App = () => {
       return (
         <>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Escaped JSON String</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Escaped JSON String</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(escapeInput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="text"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -522,9 +623,19 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+              <Button variant="primary" onClick={handleUnescapeJson} className="mb-2 action-button">
+                Unescape & Format
+              </Button>
+            </Col>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Unescaped JSON</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Unescaped JSON</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(unescapeOutput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -537,13 +648,6 @@ const App = () => {
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col className="text-center">
-              <Button variant="primary" onClick={handleUnescapeJson}>
-                Unescape & Format
-              </Button>
             </Col>
           </Row>
           {unescapeError && (
@@ -561,9 +665,14 @@ const App = () => {
       return (
         <>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Input JSON</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Input JSON</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(compressInput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -577,9 +686,19 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+              <Button variant="primary" onClick={handleJsonCompress} className="mb-2 action-button">
+                Compress
+              </Button>
+            </Col>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Compressed Base64 String</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Compressed Base64 String</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(compressedOutput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="text"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -592,13 +711,6 @@ const App = () => {
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-          </Row>
-          <Row className="mt-3">
-            <Col className="text-center">
-              <Button variant="primary" onClick={handleJsonCompress}>
-                Compress
-              </Button>
             </Col>
           </Row>
           {compressError && (
@@ -616,9 +728,14 @@ const App = () => {
       return (
         <>
           <Row>
-            <Col md={6}>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Input JSON</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Input JSON</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(minifyInput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -632,9 +749,19 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={6}>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+              <Button variant="primary" onClick={handleJsonMinify} className="mb-2 action-button">
+                Minify
+              </Button>
+            </Col>
+            <Col md={5}>
               <Form.Group>
-                <Form.Label>Minified JSON</Form.Label>
+                <div class="editor-header">
+                  <Form.Label>Minified JSON</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(minifiedOutput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
                 <AceEditor
                   mode="json"
                   theme={theme === 'light' ? 'github' : 'dracula'}
@@ -649,13 +776,6 @@ const App = () => {
               </Form.Group>
             </Col>
           </Row>
-          <Row className="mt-3">
-            <Col className="text-center">
-              <Button variant="primary" onClick={handleJsonMinify}>
-                Minify
-              </Button>
-            </Col>
-          </Row>
           {minifyError && (
             <Row className="mt-3">
               <Col>
@@ -667,13 +787,51 @@ const App = () => {
       );
     }
 
+    if (activeTab === 'validate') {
+      return (
+        <>
+          <Row>
+            <Col md={12}>
+              <Form.Group>
+                <div class="editor-header">
+                  <Form.Label>Input JSON for Validation</Form.Label>
+                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(validationInput)}>
+                    <FaCopy />
+                  </Button>
+                </div>
+                <AceEditor
+                  mode="json"
+                  theme={theme === 'light' ? 'github' : 'dracula'}
+                  onChange={(value) => setValidationInput(value)}
+                  value={validationInput}
+                  name="validation_input_editor"
+                  editorProps={{ $blockScrolling: true }}
+                  height="650px"
+                  width="100%"
+                  setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
+                  annotations={validationAnnotations}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          <Row className="mt-3">
+            <Col className="text-center">
+              <Button variant="primary" onClick={handleValidateJson} className="mb-2 action-button">
+                Validate JSON
+              </Button>
+            </Col>
+          </Row>
+        </>
+      );
+    }
+
     return null;
   };
 
   return (
     <>
       <Header theme={theme} toggleTheme={toggleTheme} wrapTextEnabled={wrapTextEnabled} toggleWrapText={toggleWrapText} />
-      <Container className="mt-4 pt-5 content-extra-padding">
+      <Container fluid className="mt-4 pt-5 content-extra-padding">
         <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
           <Nav.Item>
             <Nav.Link eventKey="diff" className="json-diff-tab">JSON Diff</Nav.Link>
@@ -693,11 +851,22 @@ const App = () => {
           <Nav.Item>
             <Nav.Link eventKey="minify">JSON Minify</Nav.Link>
           </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="validate">JSON Validator</Nav.Link>
+          </Nav.Item>
         </Nav>
         <div className="mt-3">{renderContent()}</div>
       </Container>
 
       <Footer />
+
+      <ToastContainer position="bottom-end" className="p-3">
+        <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide bg={toastVariant}>
+          <Toast.Body className={toastVariant === 'danger' ? 'text-white' : 'text-dark'}>
+            {toastMessage}
+          </Toast.Body>
+        </Toast>
+      </ToastContainer>
     </>
   );
 };
