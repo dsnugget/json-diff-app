@@ -542,7 +542,7 @@ const App = () => {
                 Format
               </Button>
             </Col>
-            <Col md={5} className="formatted-json-output-section">
+            <Col md={5}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label class="mb-0">Formatted JSON</Form.Label>
@@ -595,15 +595,17 @@ const App = () => {
                   />
                 ) : (
                   <>
-                    <Form.Control
-                      type="text"
-                      placeholder="Search in tree view..."
-                      value={treeSearchTerm}
-                      onChange={(e) => setTreeSearchTerm(e.target.value)}
-                      class="mb-2"
-                    />
-                    <div className="json-tree-view-container">
-                      <JsonTreeView data={formattedOutput} searchTerm={treeSearchTerm} />
+                    <div className="json-tree-view-wrapper">
+                      <Form.Control
+                        type="text"
+                        placeholder="Search in tree view..."
+                        value={treeSearchTerm}
+                        onChange={(e) => setTreeSearchTerm(e.target.value)}
+                        className="mb-2"
+                      />
+                      <div className="json-tree-view-container">
+                        <JsonTreeView data={formattedOutput} searchTerm={treeSearchTerm} />
+                      </div>
                     </div>
                   </>
                 )}
