@@ -23,6 +23,10 @@
   font-family: 'Roboto', sans-serif;
 }
 
+.custom-header .container {
+  padding-left: 10px; /* Adjust as needed */
+}
+
 .App-link {
   color: #61dafb;
 }
@@ -121,14 +125,24 @@ body.dark .footer {
 /* Tab styles */
 .nav-tabs .nav-link:not(.active) {
   color: #000000; /* Black for unselected tabs in light mode */
+  border: 1px solid #dee2e6; /* Add border to non-active tabs */
+  border-bottom: none; /* Remove bottom border to make it look like a tab */
 }
 
 body.dark .nav-tabs .nav-link:not(.active) {
   color: #adb5bd; /* Light grey for unselected tabs in dark mode */
+  border: 1px solid #495057; /* Darker border for non-active tabs in dark mode */
+  border-bottom: none;
 }
 
 .nav-tabs .nav-link.active {
-  border-bottom: 4px solid #006400; /* Thick dark green border */
+  border: 1px solid #dee2e6; /* Add border to active tab */
+  border-bottom: 4px solid #006400; /* Thick dark green border for active tab */
+}
+
+body.dark .nav-tabs .nav-link.active {
+  border: 1px solid #495057; /* Darker border for active tab in dark mode */
+  border-bottom: 4px solid #006400; /* Thick dark green border for active tab */
 }
 
 .form-check-input:checked {
@@ -143,6 +157,7 @@ body.dark .nav-tabs .nav-link:not(.active) {
 .json-tree-view {
   font-family: 'Monaco', monospace;
   font-size: 14px;
+  background-color: #ffffff; /* White background */
 }
 
 .json-node {
@@ -191,13 +206,24 @@ body.dark .highlight {
 }
 
 .container-fluid {
-  border: 1px solid #ddd;
+  border: 1px solid #00b3b3;
   border-top: none;
   padding: 15px;
 }
 
+.content-bg {
+  background-color: #00b3b3; /* Updated color */
+  padding: 20px; /* Add some padding */
+  border-radius: 8px; /* Slightly rounded corners */
+}
+
+body.dark .content-bg {
+  background-color: #343a40; /* Darker grey for content area in dark mode */
+}
+
 .btn {
   min-width: 100px;
+  font-weight: bold;
 }
 
 .action-button {
@@ -213,7 +239,7 @@ body.dark .highlight {
   align-items: center;
   background-color: #f8f9fa;
   padding: 5px 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #00b3b3;
   border-bottom: none;
 }
 
