@@ -359,14 +359,16 @@ const App = () => {
           <Col md={6}>
             <div class="editor-header">
               <Form.Label>JSON 1 Diff</Form.Label>
-              <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip id="tooltip-wrap-text-diff-left">Toggle Word Wrap</Tooltip>}
-                >
-                  <FaTextWidth />
-                </OverlayTrigger>
-              </Button>
+              <div className="icon-group">
+                <span class="copy-btn" onClick={toggleWrapText}>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-wrap-text-diff-left">Toggle Word Wrap</Tooltip>}
+                  >
+                    <FaTextWidth />
+                  </OverlayTrigger>
+                </span>
+              </div>
             </div>
             <AceEditor
               ref={leftEditorRef}
@@ -386,14 +388,16 @@ const App = () => {
           <Col md={6}>
             <div class="editor-header">
               <Form.Label>JSON 2 Diff</Form.Label>
-              <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                <OverlayTrigger
-                  placement="top"
-                  overlay={<Tooltip id="tooltip-wrap-text-diff-right">Toggle Word Wrap</Tooltip>}
-                >
-                  <FaTextWidth />
-                </OverlayTrigger>
-              </Button>
+              <div className="icon-group">
+                <span class="copy-btn" onClick={toggleWrapText}>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-wrap-text-diff-right">Toggle Word Wrap</Tooltip>}
+                  >
+                    <FaTextWidth />
+                  </OverlayTrigger>
+                </span>
+              </div>
             </div>
             <AceEditor
               ref={rightEditorRef}
@@ -424,22 +428,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>JSON 1</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(json1)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-json1">Copy JSON 1</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-json1">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(json1)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-json1">Copy JSON 1</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-json1">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -454,7 +460,7 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleCompare} className="mb-2 action-button">
                 Compare
               </Button>
@@ -463,22 +469,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>JSON 2</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(json2)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-json2">Copy JSON 2</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-json2">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(json2)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-json2">Copy JSON 2</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-json2">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -507,22 +515,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-format-input">Copy Input JSON</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-format-input">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-format-input">Copy Input JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-format-input">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -537,7 +547,7 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleFormat} className="mb-2 action-button">
                 Format
               </Button>
@@ -546,39 +556,39 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label class="mb-0">Formatted JSON</Form.Label>
-                  <div class="d-flex align-items-center">
-                    <Button variant="light" class="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
+                  <div class="d-flex align-items-center icon-group">
+                    <span class="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-view-code">View as Code</Tooltip>}
                       >
                         <FaCode />
                       </OverlayTrigger>
-                    </Button>
-                    <Button variant="light" class="copy-btn" onClick={() => setFormattedViewMode('tree')} active={formattedViewMode === 'tree'}>
+                    </span>
+                    <span class="copy-btn" onClick={() => setFormattedViewMode('tree')} active={formattedViewMode === 'tree'}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-view-tree">View as Tree</Tooltip>}
                       >
                         <FaSitemap />
                       </OverlayTrigger>
-                    </Button>
-                    <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
+                    </span>
+                    <span class="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-copy-formatted-output">Copy Formatted JSON</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
-                    </Button>
-                    <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-wrap-text-formatted-output">Toggle Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
                       </OverlayTrigger>
-                    </Button>
+                    </span>
                   </div>
                 </div>
                 {formattedViewMode === 'code' ? (
@@ -631,22 +641,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Base64 Zstd Compressed String</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(zstdInput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-zstd-input">Copy Base64 Zstd Compressed String</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-zstd-input">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(zstdInput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-zstd-input">Copy Base64 Zstd Compressed String</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-zstd-input">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="text"
@@ -661,7 +673,7 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleZstdDecompress} className="mb-2 action-button">
                 Decompress
               </Button>
@@ -670,22 +682,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Decompressed JSON</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(zstdOutput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-zstd-output">Copy Decompressed JSON</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-zstd-output">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(zstdOutput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-zstd-output">Copy Decompressed JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-zstd-output">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -720,22 +734,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Escaped JSON String</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(escapeInput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-escape-input">Copy Escaped JSON String</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-escape-input">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(escapeInput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-escape-input">Copy Escaped JSON String</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-escape-input">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="text"
@@ -750,7 +766,7 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleUnescapeJson} className="mb-2 action-button">
                 Unescape & Format
               </Button>
@@ -759,22 +775,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Unescaped JSON</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(unescapeOutput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-unescape-output">Copy Unescaped JSON</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-unescape-output">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(unescapeOutput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-unescape-output">Copy Unescaped JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-unescape-output">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -809,22 +827,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(compressInput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-compress-input">Copy Input JSON</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-compress-input">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(compressInput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-compress-input">Copy Input JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-compress-input">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -839,7 +859,7 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleJsonCompress} className="mb-2 action-button">
                 Compress
               </Button>
@@ -848,22 +868,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Compressed Base64 String</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(compressedOutput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-compressed-output">Copy Compressed Base64 String</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-compressed-output">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(compressedOutput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-compressed-output">Copy Compressed Base64 String</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-compressed-output">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="text"
@@ -898,22 +920,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(minifyInput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-minify-input">Copy Input JSON</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-minify-input">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(minifyInput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-minify-input">Copy Input JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-minify-input">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -928,7 +952,7 @@ const App = () => {
                 />
               </Form.Group>
             </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center">
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleJsonMinify} className="mb-2 action-button">
                 Minify
               </Button>
@@ -937,22 +961,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Minified JSON</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(minifiedOutput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-minified-output">Copy Minified JSON</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-minified-output">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(minifiedOutput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-minified-output">Copy Minified JSON</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-minified-output">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"
@@ -987,22 +1013,24 @@ const App = () => {
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON for Validation</Form.Label>
-                  <Button variant="light" class="copy-btn" onClick={() => copyToClipboard(validationInput)}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-copy-validation-input">Copy Input JSON for Validation</Tooltip>}
-                    >
-                      <FaCopy />
-                    </OverlayTrigger>
-                  </Button>
-                  <Button variant="light" class="copy-btn" onClick={toggleWrapText}>
-                    <OverlayTrigger
-                      placement="top"
-                      overlay={<Tooltip id="tooltip-wrap-text-validation-input">Toggle Word Wrap</Tooltip>}
-                    >
-                      <FaTextWidth />
-                    </OverlayTrigger>
-                  </Button>
+                  <div className="icon-group">
+                    <span class="copy-btn" onClick={() => copyToClipboard(validationInput)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-copy-validation-input">Copy Input JSON for Validation</Tooltip>}
+                      >
+                        <FaCopy />
+                      </OverlayTrigger>
+                    </span>
+                    <span class="copy-btn" onClick={toggleWrapText}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-wrap-text-validation-input">Toggle Word Wrap</Tooltip>}
+                      >
+                        <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                  </div>
                 </div>
                 <AceEditor
                   mode="json"

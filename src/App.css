@@ -20,11 +20,17 @@
 .custom-header .navbar-brand,
 .custom-header .form-check-label {
   color: white !important;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Comic Neue', cursive !important;
+}
+
+.header-container {
+  padding: 0 !important;
+  margin-left: 0 !important;
+  padding-right: 15px !important; /* Add padding to the right */
 }
 
 .custom-header .container {
-  padding-left: 10px; /* Adjust as needed */
+  padding-left: 0 !important;
 }
 
 .App-link {
@@ -222,8 +228,7 @@ body.dark .highlight {
 }
 
 .container-fluid {
-  border: 1px solid #00b3b3;
-  border-top: none;
+  border: none !important;
   padding: 15px;
 }
 
@@ -255,8 +260,11 @@ body.dark .content-bg {
   align-items: center;
   background-color: #f8f9fa;
   padding: 5px 10px;
-  border: 1px solid #00b3b3;
-  border-bottom: none;
+  border: none !important; /* Remove all borders */
+}
+
+.custom-header .navbar {
+  padding: 0 !important;
 }
 
 body.dark .editor-header {
@@ -265,27 +273,60 @@ body.dark .editor-header {
 }
 
 .copy-btn {
+  /* Reset all possible spacing and sizing */
+  padding: 0 !important;
+  margin: 0 !important;
+  min-width: 0 !important;
+  width: auto !important;
+  height: auto !important;
+  flex-shrink: 0; /* Prevent growing */
+  display: flex; /* Make it a flex container */
+  justify-content: center; /* Center content horizontally */
+  align-items: center; /* Center content vertically */
+
+  /* Reset all possible visual styles */
   background-color: transparent !important;
   border: none !important;
-  color: #000 !important;
-  width: auto !important;
-  padding: 5px !important;
-  margin-left: 5px !important;
+  box-shadow: none !important;
+  outline: none !important;
+  color: #000 !important; /* Ensure icon color is black in light mode */
 }
 
-.copy-btn:hover {
-  background-color: #eee !important;
+.copy-btn svg {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
-.copy-btn:focus {
+.editor-header .copy-btn + .copy-btn {
+  margin-left: 5px !important; /* Adjust as needed */
+}
+
+.icon-group {
+  display: flex;
+  gap: 5px; /* Adjust as needed */
+}
+
+/* Ensure no background/border/shadow on hover, focus, active states */
+.copy-btn:hover,
+.copy-btn:focus,
+.copy-btn:active,
+.copy-btn.active,
+.copy-btn.btn-light:hover, /* Specific for btn-light variant */
+.copy-btn.btn-light:focus,
+.copy-btn.btn-light:active,
+.copy-btn.btn-light.active {
+  background-color: transparent !important;
+  border-color: transparent !important;
   box-shadow: none !important;
   outline: none !important;
 }
 
+/* Dark mode adjustments for icon color */
 body.dark .copy-btn {
   color: #fff !important;
 }
 
-body.dark .copy-btn:hover {
-  background-color: #444 !important;
+.button-col-compact {
+  padding-left: 5px !important;
+  padding-right: 5px !important;
 }
