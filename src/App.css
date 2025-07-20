@@ -260,7 +260,7 @@ body.dark .content-bg {
   align-items: center;
   background-color: #f8f9fa;
   padding: 5px 10px;
-  border: none !important; /* Remove all borders */
+  border-bottom: 1px solid #00b3b3; /* Re-added thin horizontal line */
 }
 
 .custom-header .navbar {
