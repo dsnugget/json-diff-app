@@ -3,7 +3,7 @@ import { diff_match_patch } from 'diff-match-patch';
 import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -29,6 +29,29 @@ const App = () => {
   const [activeTab, setActiveTab] = useState('format');
   const [formatInput, setFormatInput] = useState('');
   const [formattedOutput, setFormattedOutput] = useState('');
+  const [sampleJson, setSampleJson] = useState(JSON.stringify({
+    "id": "0001",
+    "type": "donut",
+    "name": "Cake",
+    "ppu": 0.55,
+    "batters": {
+      "batter": [
+        { "id": "1001", "type": "Regular" },
+        { "id": "1002", "type": "Chocolate" },
+        { "id": "1003", "type": "Blueberry" },
+        { "id": "1004", "type": "Devil's Food" }
+      ]
+    },
+    "topping": [
+      { "id": "5001", "type": "None" },
+      { "id": "5002", "type": "Glazed" },
+      { "id": "5005", "type": "Sugar" },
+      { "id": "5007", "type": "Powdered" },
+      { "id": "5006", "type": "Chocolate with Sprinkles" },
+      { "id": "5003", "type": "Chocolate" },
+      { "id": "5004", "type": "Maple" }
+    ]
+  }, null, 2));
   const [formattedViewMode, setFormattedViewMode] = useState('code'); // 'code' or 'tree'
   const [treeSearchTerm, setTreeSearchTerm] = useState('');
   const [formatError, setFormatError] = useState('');
@@ -573,6 +596,14 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <div className="icon-group">
+                    <span class="copy-btn" onClick={() => setFormatInput(sampleJson)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-load-sample">Load Sample JSON</Tooltip>}
+                      >
+                        <FaFileCode />
+                      </OverlayTrigger>
+                    </span>
                     <span class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
                       <OverlayTrigger
                         placement="top"
@@ -832,6 +863,7 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Escaped JSON String</Form.Label>
                   <div className="icon-group">
+                    
                     <span class="copy-btn" onClick={() => copyToClipboard(escapeInput)}>
                       <OverlayTrigger
                         placement="top"
@@ -945,6 +977,14 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <div className="icon-group">
+                    <span class="copy-btn" onClick={() => setCompressInput(sampleJson)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-load-sample-compress">Load Sample JSON</Tooltip>}
+                      >
+                        <FaFileCode />
+                      </OverlayTrigger>
+                    </span>
                     <span class="copy-btn" onClick={() => copyToClipboard(compressInput)}>
                       <OverlayTrigger
                         placement="top"
@@ -1058,6 +1098,14 @@ const App = () => {
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <div className="icon-group">
+                    <span class="copy-btn" onClick={() => setMinifyInput(sampleJson)}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-load-sample-minify">Load Sample JSON</Tooltip>}
+                      >
+                        <FaFileCode />
+                      </OverlayTrigger>
+                    </span>
                     <span class="copy-btn" onClick={() => copyToClipboard(minifyInput)}>
                       <OverlayTrigger
                         placement="top"
