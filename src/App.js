@@ -3,7 +3,7 @@ import { diff_match_patch } from 'diff-match-patch';
 import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap, FaTextWidth } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -26,7 +26,7 @@ const App = () => {
   const [error, setError] = useState('');
   const [ignoreArrayOrder, setIgnoreArrayOrder] = useState(false);
   const [ignoreWhitespace, setIgnoreWhitespace] = useState(false);
-  const [activeTab, setActiveTab] = useState('diff');
+  const [activeTab, setActiveTab] = useState('format');
   const [formatInput, setFormatInput] = useState('');
   const [formattedOutput, setFormattedOutput] = useState('');
   const [formattedViewMode, setFormattedViewMode] = useState('code'); // 'code' or 'tree'
@@ -52,6 +52,7 @@ const App = () => {
   const [showToast, setShowToast] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [toastVariant, setToastVariant] = useState('success');
+  const [expandedEditor, setExpandedEditor] = useState(null);
 
   const toggleWrapText = () => {
     setWrapTextEnabled((prev) => !prev);
@@ -356,16 +357,32 @@ const App = () => {
             </Col>
         </Row>
         <Row className="mt-3">
-          <Col md={6}>
+          <Col md={expandedEditor === 'diff_right' ? 0 : (expandedEditor === 'diff_left' ? 12 : 6)}>
             <div class="editor-header">
               <Form.Label>JSON 1 Diff</Form.Label>
               <div className="icon-group">
                 <span class="copy-btn" onClick={toggleWrapText}>
                   <OverlayTrigger
                     placement="top"
-                    overlay={<Tooltip id="tooltip-wrap-text-diff-left">Toggle Word Wrap</Tooltip>}
+                    overlay={<Tooltip id="tooltip-wrap-text-diff-left">Word Wrap</Tooltip>}
                   >
                     <FaTextWidth />
+                  </OverlayTrigger>
+                </span>
+                <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'diff_left' ? null : 'diff_left')}>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-expand-diff-left">{expandedEditor === 'diff_left' ? 'Collapse' : 'Expand'}</Tooltip>}
+                  >
+                    {expandedEditor === 'diff_left' ? <FaCompress /> : <FaExpand /> }
+                  </OverlayTrigger>
+                </span>
+                <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'diff_left' ? null : 'diff_left')}>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-expand-diff-left">{expandedEditor === 'diff_left' ? 'Collapse' : 'Expand'}</Tooltip>}
+                  >
+                    {expandedEditor === 'diff_left' ? <FaCompress /> : <FaExpand />}
                   </OverlayTrigger>
                 </span>
               </div>
@@ -377,7 +394,7 @@ const App = () => {
               value={json1}
               name="diff_left"
               editorProps={{ $blockScrolling: true }}
-              height="650px"
+              height={expandedEditor === 'diff_left' ? "800px" : "650px"}
               width="100%"
               readOnly
               setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -385,16 +402,32 @@ const App = () => {
               onScroll={() => handleScroll('left')}
             />
           </Col>
-          <Col md={6}>
+          <Col md={expandedEditor === 'diff_left' ? 0 : (expandedEditor === 'diff_right' ? 12 : 6)}>
             <div class="editor-header">
               <Form.Label>JSON 2 Diff</Form.Label>
               <div className="icon-group">
                 <span class="copy-btn" onClick={toggleWrapText}>
                   <OverlayTrigger
                     placement="top"
-                    overlay={<Tooltip id="tooltip-wrap-text-diff-right">Toggle Word Wrap</Tooltip>}
+                    overlay={<Tooltip id="tooltip-wrap-text-diff-right">Word Wrap</Tooltip>}
                   >
                     <FaTextWidth />
+                  </OverlayTrigger>
+                </span>
+                <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'diff_right' ? null : 'diff_right')}>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-expand-diff-right">{expandedEditor === 'diff_right' ? 'Collapse' : 'Expand'}</Tooltip>}
+                  >
+                    {expandedEditor === 'diff_right' ? <FaCompress /> : <FaExpand />}
+                  </OverlayTrigger>
+                </span>
+                <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'diff_right' ? null : 'diff_right')}>
+                  <OverlayTrigger
+                    placement="top"
+                    overlay={<Tooltip id="tooltip-expand-diff-right">{expandedEditor === 'diff_right' ? 'Collapse' : 'Expand'}</Tooltip>}
+                  >
+                    {expandedEditor === 'diff_right' ? <FaCompress /> : <FaExpand />}
                   </OverlayTrigger>
                 </span>
               </div>
@@ -406,7 +439,7 @@ const App = () => {
               value={json2}
               name="diff_right"
               editorProps={{ $blockScrolling: true }}
-              height="650px"
+              height={expandedEditor === 'diff_right' ? "800px" : "650px"}
               width="100%"
               readOnly
               setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
@@ -421,10 +454,14 @@ const App = () => {
 
   const renderContent = () => {
     if (activeTab === 'diff') {
+      const json1Col = expandedEditor === 'json2' ? 0 : (expandedEditor === 'json1' ? 12 : 5);
+      const json2Col = expandedEditor === 'json1' ? 0 : (expandedEditor === 'json2' ? 12 : 5);
+      const buttonCol = expandedEditor ? 0 : 2;
+
       return (
         <>
           <Row>
-            <Col md={5}>
+            {json1Col > 0 && <Col md={json1Col}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>JSON 1</Form.Label>
@@ -432,7 +469,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(json1)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-json1">Copy JSON 1</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-json1">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -440,9 +477,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-json1">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-json1">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'json1' ? null : 'json1')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-json1">{expandedEditor === 'json1' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'json1' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -459,13 +504,13 @@ const App = () => {
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+            </Col>}
+            {buttonCol > 0 && <Col md={buttonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleCompare} className="mb-2 action-button">
                 Compare
               </Button>
-            </Col>
-            <Col md={5}>
+            </Col>}
+            {json2Col > 0 && <Col md={json2Col}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>JSON 2</Form.Label>
@@ -473,7 +518,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(json2)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-json2">Copy JSON 2</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-json2">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -481,9 +526,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-json2">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-json2">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'json2' ? null : 'json2')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-json2">{expandedEditor === 'json2' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'json2' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -500,7 +553,7 @@ const App = () => {
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           {renderDiff()}
         </>
@@ -508,10 +561,14 @@ const App = () => {
     }
 
     if (activeTab === 'format') {
+      const formatInputCol = expandedEditor === 'formatOutput' ? 0 : (expandedEditor === 'formatInput' ? 12 : 5);
+      const formatOutputCol = expandedEditor === 'formatInput' ? 0 : (expandedEditor === 'formatOutput' ? 12 : 5);
+      const formatButtonCol = expandedEditor ? 0 : 2;
+
       return (
         <>
           <Row>
-            <Col md={5}>
+            {formatInputCol > 0 && <Col md={formatInputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
@@ -519,7 +576,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-format-input">Copy Input JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-format-input">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -527,9 +584,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-format-input">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-format-input">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'formatInput' ? null : 'formatInput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-format-input">{expandedEditor === 'formatInput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'formatInput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -546,13 +611,13 @@ const App = () => {
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+            </Col>}
+            {formatButtonCol > 0 && <Col md={formatButtonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleFormat} className="mb-2 action-button">
                 Format
               </Button>
-            </Col>
-            <Col md={5}>
+            </Col>}
+            {formatOutputCol > 0 && <Col md={formatOutputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label class="mb-0">Formatted JSON</Form.Label>
@@ -576,7 +641,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-formatted-output">Copy Formatted JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-formatted-output">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -584,9 +649,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-formatted-output">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-formatted-output">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'formatOutput' ? null : 'formatOutput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-format-output">{expandedEditor === 'formatOutput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'formatOutput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -620,7 +693,7 @@ const App = () => {
                   </>
                 )}
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           {formatError && (
             <Row className="mt-3">
@@ -634,10 +707,14 @@ const App = () => {
     }
 
     if (activeTab === 'zstd') {
+      const zstdInputCol = expandedEditor === 'zstdOutput' ? 0 : (expandedEditor === 'zstdInput' ? 12 : 5);
+      const zstdOutputCol = expandedEditor === 'zstdInput' ? 0 : (expandedEditor === 'zstdOutput' ? 12 : 5);
+      const zstdButtonCol = expandedEditor ? 0 : 2;
+
       return (
         <>
           <Row>
-            <Col md={5}>
+            {zstdInputCol > 0 && <Col md={zstdInputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Base64 Zstd Compressed String</Form.Label>
@@ -645,7 +722,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(zstdInput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-zstd-input">Copy Base64 Zstd Compressed String</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-zstd-input">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -653,9 +730,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-zstd-input">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-zstd-input">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'zstdInput' ? null : 'zstdInput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-zstd-input">{expandedEditor === 'zstdInput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'zstdInput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -667,18 +752,18 @@ const App = () => {
                   value={zstdInput}
                   name="zstd_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'zstdInput' ? "800px" : "650px"}
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+            </Col>}
+            {zstdButtonCol > 0 && <Col md={zstdButtonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleZstdDecompress} className="mb-2 action-button">
                 Decompress
               </Button>
-            </Col>
-            <Col md={5}>
+            </Col>}
+            {zstdOutputCol > 0 && <Col md={zstdOutputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Decompressed JSON</Form.Label>
@@ -686,7 +771,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(zstdOutput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-zstd-output">Copy Decompressed JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-zstd-output">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -694,9 +779,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-zstd-output">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-zstd-output">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'zstdOutput' ? null : 'zstdOutput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-zstd-output">{expandedEditor === 'zstdOutput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'zstdOutput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -707,13 +800,13 @@ const App = () => {
                   value={zstdOutput}
                   name="zstd_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'zstdOutput' ? "800px" : "650px"}
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           {zstdError && (
             <Row className="mt-3">
@@ -727,10 +820,14 @@ const App = () => {
     }
 
     if (activeTab === 'unescape') {
+      const unescapeInputCol = expandedEditor === 'unescapeOutput' ? 0 : (expandedEditor === 'unescapeInput' ? 12 : 5);
+      const unescapeOutputCol = expandedEditor === 'unescapeInput' ? 0 : (expandedEditor === 'unescapeOutput' ? 12 : 5);
+      const unescapeButtonCol = expandedEditor ? 0 : 2;
+
       return (
         <>
           <Row>
-            <Col md={5}>
+            {unescapeInputCol > 0 && <Col md={unescapeInputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Escaped JSON String</Form.Label>
@@ -738,7 +835,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(escapeInput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-escape-input">Copy Escaped JSON String</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-escape-input">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -746,9 +843,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-escape-input">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-escape-input">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'unescapeInput' ? null : 'unescapeInput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-unescape-input">{expandedEditor === 'unescapeInput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'unescapeInput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -760,18 +865,18 @@ const App = () => {
                   value={escapeInput}
                   name="escape_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'unescapeInput' ? "800px" : "650px"}
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+            </Col>}
+            {unescapeButtonCol > 0 && <Col md={unescapeButtonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleUnescapeJson} className="mb-2 action-button">
                 Unescape & Format
               </Button>
-            </Col>
-            <Col md={5}>
+            </Col>}
+            {unescapeOutputCol > 0 && <Col md={unescapeOutputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Unescaped JSON</Form.Label>
@@ -779,7 +884,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(unescapeOutput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-unescape-output">Copy Unescaped JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-unescape-output">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -787,9 +892,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-unescape-output">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-unescape-output">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'unescapeOutput' ? null : 'unescapeOutput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-unescape-output">{expandedEditor === 'unescapeOutput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'unescapeOutput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -800,13 +913,13 @@ const App = () => {
                   value={unescapeOutput}
                   name="unescape_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'unescapeOutput' ? "800px" : "650px"}
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           {unescapeError && (
             <Row className="mt-3">
@@ -820,10 +933,14 @@ const App = () => {
     }
 
     if (activeTab === 'compress') {
+      const compressInputCol = expandedEditor === 'compressedOutput' ? 0 : (expandedEditor === 'compressInput' ? 12 : 5);
+      const compressedOutputCol = expandedEditor === 'compressInput' ? 0 : (expandedEditor === 'compressedOutput' ? 12 : 5);
+      const compressButtonCol = expandedEditor ? 0 : 2;
+
       return (
         <>
           <Row>
-            <Col md={5}>
+            {compressInputCol > 0 && <Col md={compressInputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
@@ -831,7 +948,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(compressInput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-compress-input">Copy Input JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-compress-input">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -839,9 +956,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-compress-input">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-compress-input">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'compressInput' ? null : 'compressInput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-compress-input">{expandedEditor === 'compressInput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'compressInput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -853,18 +978,18 @@ const App = () => {
                   value={compressInput}
                   name="compress_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'compressInput' ? "800px" : "650px"}
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+            </Col>}
+            {compressButtonCol > 0 && <Col md={compressButtonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleJsonCompress} className="mb-2 action-button">
                 Compress
               </Button>
-            </Col>
-            <Col md={5}>
+            </Col>}
+            {compressedOutputCol > 0 && <Col md={compressedOutputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Compressed Base64 String</Form.Label>
@@ -872,7 +997,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(compressedOutput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-compressed-output">Copy Compressed Base64 String</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-compressed-output">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -880,9 +1005,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-compressed-output">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-compressed-output">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'compressedOutput' ? null : 'compressedOutput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-compressed-output">{expandedEditor === 'compressedOutput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'compressedOutput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -893,13 +1026,13 @@ const App = () => {
                   value={compressedOutput}
                   name="compressed_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'compressedOutput' ? "800px" : "650px"}
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           {compressError && (
             <Row className="mt-3">
@@ -913,10 +1046,14 @@ const App = () => {
     }
 
     if (activeTab === 'minify') {
+      const minifyInputCol = expandedEditor === 'minifiedOutput' ? 0 : (expandedEditor === 'minifyInput' ? 12 : 5);
+      const minifiedOutputCol = expandedEditor === 'minifyInput' ? 0 : (expandedEditor === 'minifiedOutput' ? 12 : 5);
+      const minifyButtonCol = expandedEditor ? 0 : 2;
+
       return (
         <>
           <Row>
-            <Col md={5}>
+            {minifyInputCol > 0 && <Col md={minifyInputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON</Form.Label>
@@ -924,7 +1061,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(minifyInput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-minify-input">Copy Input JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-minify-input">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -932,9 +1069,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-minify-input">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-minify-input">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'minifyInput' ? null : 'minifyInput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-minify-input">{expandedEditor === 'minifyInput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'minifyInput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -946,18 +1091,18 @@ const App = () => {
                   value={minifyInput}
                   name="minify_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'minifyInput' ? "800px" : "650px"}
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
-            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+            </Col>}
+            {minifyButtonCol > 0 && <Col md={minifyButtonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
               <Button variant="primary" onClick={handleJsonMinify} className="mb-2 action-button">
                 Minify
               </Button>
-            </Col>
-            <Col md={5}>
+            </Col>}
+            {minifiedOutputCol > 0 && <Col md={minifiedOutputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Minified JSON</Form.Label>
@@ -965,7 +1110,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(minifiedOutput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-minified-output">Copy Minified JSON</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-minified-output">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -973,9 +1118,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-minified-output">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-minified-output">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'minifiedOutput' ? null : 'minifiedOutput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-minified-output">{expandedEditor === 'minifiedOutput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'minifiedOutput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -986,13 +1139,13 @@ const App = () => {
                   value={minifiedOutput}
                   name="minified_output_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'minifiedOutput' ? "800px" : "650px"}
                   width="100%"
                   readOnly
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           {minifyError && (
             <Row className="mt-3">
@@ -1006,10 +1159,12 @@ const App = () => {
     }
 
     if (activeTab === 'validate') {
+      const validationInputCol = expandedEditor === 'validationInput' ? 12 : 12;
+
       return (
         <>
           <Row>
-            <Col md={12}>
+            {validationInputCol > 0 && <Col md={validationInputCol}>
               <Form.Group>
                 <div class="editor-header">
                   <Form.Label>Input JSON for Validation</Form.Label>
@@ -1017,7 +1172,7 @@ const App = () => {
                     <span class="copy-btn" onClick={() => copyToClipboard(validationInput)}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-copy-validation-input">Copy Input JSON for Validation</Tooltip>}
+                        overlay={<Tooltip id="tooltip-copy-validation-input">Copy</Tooltip>}
                       >
                         <FaCopy />
                       </OverlayTrigger>
@@ -1025,9 +1180,17 @@ const App = () => {
                     <span class="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
-                        overlay={<Tooltip id="tooltip-wrap-text-validation-input">Toggle Word Wrap</Tooltip>}
+                        overlay={<Tooltip id="tooltip-wrap-text-validation-input">Word Wrap</Tooltip>}
                       >
                         <FaTextWidth />
+                      </OverlayTrigger>
+                    </span>
+                    <span className="copy-btn" onClick={() => setExpandedEditor(expandedEditor === 'validationInput' ? null : 'validationInput')}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-expand-validation-input">{expandedEditor === 'validationInput' ? 'Collapse' : 'Expand'}</Tooltip>}
+                      >
+                        {expandedEditor === 'validationInput' ? <FaCompress /> : <FaExpand />}
                       </OverlayTrigger>
                     </span>
                   </div>
@@ -1039,13 +1202,13 @@ const App = () => {
                   value={validationInput}
                   name="validation_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height={expandedEditor === 'validationInput' ? "800px" : "650px"}
                   width="100%"
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                   annotations={validationAnnotations}
                 />
               </Form.Group>
-            </Col>
+            </Col>}
           </Row>
           <Row className="mt-3">
             <Col className="text-center">
@@ -1067,25 +1230,25 @@ const App = () => {
       <Container fluid className="mt-4 pt-5 content-extra-padding">
         <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
           <Nav.Item>
-            <Nav.Link eventKey="diff" className="json-diff-tab">JSON Diff</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
             <Nav.Link eventKey="format">JSON Formatter</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="zstd">Zstd Decompress</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="compress">Zstd Compress</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
-            <Nav.Link eventKey="unescape">JSON Unescape</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="minify">JSON Minify</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="validate">JSON Validator</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="unescape">JSON Unescape</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="diff" className="json-diff-tab">JSON Diff</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="compress">Zstd Compress</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="zstd">Zstd Decompress</Nav.Link>
           </Nav.Item>
         </Nav>
         <div className="mt-3 content-bg">{renderContent()}</div>
