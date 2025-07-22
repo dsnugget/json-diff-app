@@ -1,16 +1,16 @@
 {
   "files": {
     "main.css": "/json-diff-app/static/css/main.f10c20e1.css",
-    "main.js": "/json-diff-app/static/js/main.c299114b.js",
+    "main.js": "/json-diff-app/static/js/main.803e6b5c.js",
     "static/js/510.88c5f569.chunk.js": "/json-diff-app/static/js/510.88c5f569.chunk.js",
     "static/media/zstd.wasm": "/json-diff-app/static/media/zstd.873ddd8944b409c00509.wasm",
     "index.html": "/json-diff-app/index.html",
     "main.f10c20e1.css.map": "/json-diff-app/static/css/main.f10c20e1.css.map",
-    "main.c299114b.js.map": "/json-diff-app/static/js/main.c299114b.js.map",
+    "main.803e6b5c.js.map": "/json-diff-app/static/js/main.803e6b5c.js.map",
     "510.88c5f569.chunk.js.map": "/json-diff-app/static/js/510.88c5f569.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.f10c20e1.css",
-    "static/js/main.c299114b.js"
+    "static/js/main.803e6b5c.js"
   ]
 }
