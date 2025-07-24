@@ -19,6 +19,70 @@ import 'ace-builds/src-noconflict/ext-searchbox';
 
 ace.config.setModuleUrl('ace/mode/json_worker', '/static/js/worker-json.js');
 
+function getDiffLines(leftLines, rightLines, leftMarkers, rightMarkers) {
+  const maxLen = Math.max(leftLines.length, rightLines.length);
+  const leftMarkerRows = new Set(leftMarkers.map(m => m.startRow));
+  const rightMarkerRows = new Set(rightMarkers.map(m => m.startRow));
+  const lines = [];
+  for (let i = 0; i < maxLen; i++) {
+    const left = leftLines[i] || '';
+    const right = rightLines[i] || '';
+    const leftClass = leftMarkerRows.has(i) ? 'diff-removed' : '';
+    const rightClass = rightMarkerRows.has(i) ? 'diff-added' : '';
+    lines.push({ left, right, leftClass, rightClass });
+  }
+  return lines;
+}
+
+function hasDiff(leftMarkers, rightMarkers) {
+  return (leftMarkers && leftMarkers.length > 0) || (rightMarkers && rightMarkers.length > 0);
+}
+
+function getDiffHunks(leftLines, rightLines, leftMarkers, rightMarkers, context = 3) {
+  // Returns an array of { type: 'hunk', start, end } or { type: 'collapsed', start, end }
+  // where start/end are line indices
+  const maxLen = Math.max(leftLines.length, rightLines.length);
+  const diffRows = new Set([
+    ...leftMarkers.map(m => m.startRow),
+    ...rightMarkers.map(m => m.startRow),
+  ]);
+  let hunks = [];
+  let i = 0;
+  while (i < maxLen) {
+    // Find next diff
+    while (i < maxLen && !diffRows.has(i)) i++;
+    if (i >= maxLen) break;
+    // Start of hunk
+    let hunkStart = Math.max(0, i - context);
+    // Find end of hunk
+    let hunkEnd = i;
+    while (hunkEnd < maxLen && (diffRows.has(hunkEnd) || hunkEnd - i < context)) hunkEnd++;
+    // Expand hunkEnd to include context after
+    hunkEnd = Math.min(maxLen, hunkEnd + context);
+    // Merge with previous hunk if overlapping
+    if (hunks.length && hunks[hunks.length - 1].end >= hunkStart) {
+      hunks[hunks.length - 1].end = hunkEnd;
+    } else {
+      hunks.push({ type: 'hunk', start: hunkStart, end: hunkEnd });
+    }
+    i = hunkEnd;
+  }
+  // Add collapsed sections
+  let result = [];
+  let lastEnd = 0;
+  hunks.forEach((hunk, idx) => {
+    if (hunk.start > lastEnd) {
+      result.push({ type: 'collapsed', start: lastEnd, end: hunk.start });
+    }
+    result.push(hunk);
+    lastEnd = hunk.end;
+  });
+  if (lastEnd < maxLen) {
+    result.push({ type: 'collapsed', start: lastEnd, end: maxLen });
+  }
+  return result;
+}
+
 const App = () => {
   const [json1, setJson1] = useState('');
   const [json2, setJson2] = useState('');
@@ -77,6 +141,21 @@ const App = () => {
   const [toastVariant, setToastVariant] = useState('success');
   const [expandedEditor, setExpandedEditor] = useState(null);
 
+  // Add these to the top level of App, with other useState hooks
+  const [jsonDiffInput1, setJsonDiffInput1] = useState('');
+  const [jsonDiffInput2, setJsonDiffInput2] = useState('');
+  const [jsonDiffResult, setJsonDiffResult] = useState(null);
+  const [jsonDiffError, setJsonDiffError] = useState('');
+  const [jsonDiffMarkers, setJsonDiffMarkers] = useState([]);
+
+  // Add new state for side-by-side diff
+  const [jsonDiffLeftLines, setJsonDiffLeftLines] = useState([]);
+  const [jsonDiffRightLines, setJsonDiffRightLines] = useState([]);
+  const [jsonDiffLeftMarkers, setJsonDiffLeftMarkers] = useState([]);
+  const [jsonDiffRightMarkers, setJsonDiffRightMarkers] = useState([]);
+
+  const [expandedSections, setExpandedSections] = useState(new Set());
+
   const toggleWrapText = () => {
     setWrapTextEnabled((prev) => !prev);
   };
@@ -84,6 +163,9 @@ const App = () => {
   const leftEditorRef = useRef(null);
   const rightEditorRef = useRef(null);
   const isScrollingRef = useRef(false);
+  // Add these for diff panel refs
+  const diffLeftRef = useRef(null);
+  const diffRightRef = useRef(null);
 
   const showNotification = (message, variant = 'success') => {
     setToastMessage(message);
@@ -331,6 +413,59 @@ const App = () => {
     navigator.clipboard.writeText(text);
   };
 
+  const handleJsonDiff = () => {
+    setExpandedSections(new Set()); // Reset expanded sections on new diff
+    setJsonDiffError('');
+    setJsonDiffResult(null);
+    setJsonDiffMarkers([]);
+    setJsonDiffLeftLines([]);
+    setJsonDiffRightLines([]);
+    setJsonDiffLeftMarkers([]);
+    setJsonDiffRightMarkers([]);
+    try {
+      const parsed1 = JSON.parse(jsonDiffInput1);
+      const parsed2 = JSON.parse(jsonDiffInput2);
+      const sorted1 = JSON.stringify(sortObject(parsed1), null, 2);
+      const sorted2 = JSON.stringify(sortObject(parsed2), null, 2);
+      const dmp = new diff_match_patch();
+      const diffs = dmp.diff_main(sorted1, sorted2);
+      dmp.diff_cleanupSemantic(diffs);
+      // Build side-by-side diff output
+      let leftLines = [];
+      let rightLines = [];
+      let leftMarkers = [];
+      let rightMarkers = [];
+      let leftLineNum = 0;
+      let rightLineNum = 0;
+      diffs.forEach(part => {
+        const lines = part[1].split('\n');
+        lines.forEach((line, idx) => {
+          if (idx === lines.length - 1 && line === '') return; // skip trailing empty
+          if (part[0] === 0) {
+            leftLines.push(line);
+            rightLines.push(line);
+          } else if (part[0] === -1) {
+            leftLines.push(line);
+            rightLines.push('');
+            leftMarkers.push({ startRow: leftLineNum, endRow: leftLineNum, className: 'diff-marker-removed', type: 'fullLine' });
+          } else if (part[0] === 1) {
+            leftLines.push('');
+            rightLines.push(line);
+            rightMarkers.push({ startRow: rightLineNum, endRow: rightLineNum, className: 'diff-marker-added', type: 'fullLine' });
+          }
+          if (part[0] !== 1) leftLineNum++;
+          if (part[0] !== -1) rightLineNum++;
+        });
+      });
+      setJsonDiffLeftLines(leftLines);
+      setJsonDiffRightLines(rightLines);
+      setJsonDiffLeftMarkers(leftMarkers);
+      setJsonDiffRightMarkers(rightMarkers);
+    } catch (e) {
+      setJsonDiffError('Invalid JSON input: ' + e.message);
+    }
+  };
+
   const renderDiff = () => {
     if (error) {
       return <Card body className="mt-3 text-danger">{error}</Card>;
@@ -473,6 +608,15 @@ const App = () => {
         </Row>
       </>
     );
+  };
+
+  const handleDiffSyncScroll = (from) => {
+    if (!diffLeftRef.current || !diffRightRef.current) return;
+    if (from === 'left') {
+      diffRightRef.current.scrollTop = diffLeftRef.current.scrollTop;
+    } else {
+      diffLeftRef.current.scrollTop = diffRightRef.current.scrollTop;
+    }
   };
 
   const renderContent = () => {
@@ -1269,6 +1413,133 @@ const App = () => {
       );
     }
 
+    if (activeTab === 'jsondiff') {
+      const diffLines = getDiffLines(jsonDiffLeftLines, jsonDiffRightLines, jsonDiffLeftMarkers, jsonDiffRightMarkers);
+      const hunks = getDiffHunks(jsonDiffLeftLines, jsonDiffRightLines, jsonDiffLeftMarkers, jsonDiffRightMarkers, 3);
+      const showNoDiff = (jsonDiffLeftLines.length > 0 || jsonDiffRightLines.length > 0) && !hasDiff(jsonDiffLeftMarkers, jsonDiffRightMarkers);
+      const handleExpand = (start, end) => {
+        setExpandedSections(prev => new Set(prev).add(`${start}-${end}`));
+      };
+      const isExpanded = (start, end) => expandedSections.has(`${start}-${end}`);
+      return (
+        <>
+          <Row>
+            <Col md={5}>
+              <Form.Group>
+                <Form.Label>JSON 1</Form.Label>
+                <AceEditor
+                  mode="json"
+                  theme={theme === 'light' ? 'github' : 'dracula'}
+                  onChange={setJsonDiffInput1}
+                  value={jsonDiffInput1}
+                  name="json_diff_input_1"
+                  editorProps={{ $blockScrolling: true }}
+                  height="650px"
+                  width="100%"
+                  setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
+                />
+              </Form.Group>
+            </Col>
+            <Col md={2} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
+              <Button variant="primary" onClick={handleJsonDiff} className="mb-2 action-button">
+                Diff
+              </Button>
+            </Col>
+            <Col md={5}>
+              <Form.Group>
+                <Form.Label>JSON 2</Form.Label>
+                <AceEditor
+                  mode="json"
+                  theme={theme === 'light' ? 'github' : 'dracula'}
+                  onChange={setJsonDiffInput2}
+                  value={jsonDiffInput2}
+                  name="json_diff_input_2"
+                  editorProps={{ $blockScrolling: true }}
+                  height="650px"
+                  width="100%"
+                  setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
+                />
+              </Form.Group>
+            </Col>
+          </Row>
+          {jsonDiffError && (
+            <Row className="mt-3">
+              <Col>
+                <Card body className="text-danger">{jsonDiffError}</Card>
+              </Col>
+            </Row>
+          )}
+          {showNoDiff && (
+            <Row className="mt-3">
+              <Col>
+                <div className="alert alert-success text-center" role="alert">
+                  No differences found! 🎉
+                </div>
+              </Col>
+            </Row>
+          )}
+          {(jsonDiffLeftLines.length > 0 || jsonDiffRightLines.length > 0) && (
+            <Row className="mt-3">
+              <Col md={6}>
+                <Card className="json-diff-card">
+                  <Card.Body>
+                    <Form.Label>Diff: JSON 1</Form.Label>
+                    <pre className="json-diff-pre">
+                      {hunks.some(h => h.type === 'hunk')
+                        ? hunks.map((hunk, idx) => {
+                            if (hunk.type === 'hunk' || isExpanded(hunk.start, hunk.end)) {
+                              return diffLines.slice(hunk.start, hunk.end).map((line, i) => (
+                                <span key={hunk.start + i} className={line.leftClass}>{line.left || '\u00A0'}</span>
+                              ));
+                            } else {
+                              // Only one row for the collapsed section
+                              return (
+                                <span key={`collapsed-left-${hunk.start}-${hunk.end}`} className="diff-collapsed">
+                                  ... <button className="btn btn-link btn-sm p-0" onClick={() => handleExpand(hunk.start, hunk.end)}>Expand {hunk.end - hunk.start} lines</button> ...
+                                </span>
+                              );
+                            }
+                          })
+                        : diffLines.map((line, idx) => (
+                            <span key={idx} className={line.leftClass}>{line.left || '\u00A0'}</span>
+                          ))}
+                    </pre>
+                  </Card.Body>
+                </Card>
+              </Col>
+              <Col md={6}>
+                <Card className="json-diff-card">
+                  <Card.Body>
+                    <Form.Label>Diff: JSON 2</Form.Label>
+                    <pre className="json-diff-pre">
+                      {hunks.some(h => h.type === 'hunk')
+                        ? hunks.map((hunk, idx) => {
+                            if (hunk.type === 'hunk' || isExpanded(hunk.start, hunk.end)) {
+                              return diffLines.slice(hunk.start, hunk.end).map((line, i) => (
+                                <span key={hunk.start + i} className={line.rightClass}>{line.right || '\u00A0'}</span>
+                              ));
+                            } else {
+                              // Only one row for the collapsed section
+                              return (
+                                <span key={`collapsed-right-${hunk.start}-${hunk.end}`} className="diff-collapsed">
+                                  ... <button className="btn btn-link btn-sm p-0" onClick={() => handleExpand(hunk.start, hunk.end)}>Expand {hunk.end - hunk.start} lines</button> ...
+                                </span>
+                              );
+                            }
+                          })
+                        : diffLines.map((line, idx) => (
+                            <span key={idx} className={line.rightClass}>{line.right || '\u00A0'}</span>
+                          ))}
+                    </pre>
+                  </Card.Body>
+                </Card>
+              </Col>
+            </Row>
+          )}
+        </>
+      );
+    }
+
     return null;
   };
 
@@ -1288,6 +1559,9 @@ const App = () => {
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="unescape">JSON Unescape</Nav.Link>
+          </Nav.Item>
+          <Nav.Item>
+            <Nav.Link eventKey="jsondiff">JSON Diff</Nav.Link>
           </Nav.Item>
           <Nav.Item>
             <Nav.Link eventKey="compress">Zstd Compress</Nav.Link>

@@ -96,6 +96,24 @@ body.dark .diff-marker-added .ace_token {
   color: #f8f9fa !important; /* Light text for highlighted lines in dark mode */
 }
 
+/* JSON Diff tab custom diff colors - vivid and with left border */
+.ace_marker-layer .diff-marker-added {
+  background-color: #d4ffd4 !important; /* bright green */
+  border-left: 4px solid #39FF14 !important;
+}
+.ace_marker-layer .diff-marker-removed {
+  background-color: #ffd6d6 !important; /* bright red */
+  border-left: 4px solid #f54242 !important;
+}
+body.dark .ace_marker-layer .diff-marker-added {
+  background-color: #006400 !important;
+  border-left: 4px solid #39FF14 !important;
+}
+body.dark .ace_marker-layer .diff-marker-removed {
+  background-color: #8b0000 !important;
+  border-left: 4px solid #f54242 !important;
+}
+
 /* Footer styles */
 .footer {
   background-color: #212529; /* Dark grey */
@@ -359,4 +377,78 @@ body.dark .copy-btn {
   display: flex;
   align-items: center;
   height: 2rem; /* Match the switch height for perfect alignment */
+}
+
+/* HTML-based JSON Diff view styles */
+.json-diff-pre {
+  height: 650px;
+  min-height: 650px;
+  overflow: auto;
+  background: #fff;
+  font-family: 'Monaco', 'Menlo', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.2;
+  margin: 0;
+  padding: 0.25rem 0.25rem 0.25rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #e0e0e0;
+  word-break: normal;
+  white-space: pre;
+}
+.json-diff-pre span {
+  display: block;
+  white-space: pre;
+  min-height: 1.2em;
+  padding-left: 0.25rem;
+  padding-right: 0.25rem;
+}
+.diff-added {
+  background: #d4ffd4 !important;
+  border-left: 4px solid #39FF14 !important;
+}
+.diff-removed {
+  background: #ffd6d6 !important;
+  border-left: 4px solid #f54242 !important;
+}
+body.dark .json-diff-pre {
+  background: #fff;
+  border-color: #444;
+}
+body.dark .diff-added {
+  background: #006400 !important;
+  border-left: 4px solid #39FF14 !important;
+}
+body.dark .diff-removed {
+  background: #8b0000 !important;
+  border-left: 4px solid #f54242 !important;
+}
+
+.diff-collapsed {
+  display: block;
+  text-align: center;
+  background: #f5f5f5;
+  color: #888;
+  font-style: italic;
+  padding: 0.2em 0;
+  border-radius: 2px;
+  margin: 0.1em 0;
+}
+.diff-collapsed button {
+  color: #007bff;
+  text-decoration: underline;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.95em;
+}
+.diff-collapsed button:focus {
+  outline: none;
+}
+
+.json-diff-card {
+  margin-bottom: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px 0 rgba(0,0,0,0.06);
+  border: 1px solid #e0e0e0;
+  background: #fff;
 }
