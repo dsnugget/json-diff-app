@@ -3,7 +3,7 @@ import { diff_match_patch } from 'diff-match-patch';
 import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -155,6 +155,8 @@ const App = () => {
   const [jsonDiffRightMarkers, setJsonDiffRightMarkers] = useState([]);
 
   const [expandedSections, setExpandedSections] = useState(new Set());
+  const [formatInputFontSize, setFormatInputFontSize] = useState(15);
+  const [formatOutputFontSize, setFormatOutputFontSize] = useState(15);
 
   const toggleWrapText = () => {
     setWrapTextEnabled((prev) => !prev);
@@ -732,15 +734,24 @@ const App = () => {
       const formatOutputCol = expandedEditor === 'formatInput' ? 0 : (expandedEditor === 'formatOutput' ? 12 : 5);
       const formatButtonCol = expandedEditor ? 0 : 2;
 
+      const handleInputFontSizeChange = (delta) => {
+        setFormatInputFontSize((prev) => Math.max(10, Math.min(32, prev + delta)));
+      };
+      const handleOutputFontSizeChange = (delta) => {
+        setFormatOutputFontSize((prev) => Math.max(10, Math.min(32, prev + delta)));
+      };
+
       return (
         <>
           <Row>
             {formatInputCol > 0 && <Col md={formatInputCol}>
               <Form.Group>
-                <div class="editor-header">
+                <div className="editor-header">
                   <Form.Label>Input JSON</Form.Label>
                   <div className="icon-group">
-                    <span class="copy-btn" onClick={() => setFormatInput(sampleJson)}>
+                    <button className="copy-btn" type="button" onClick={() => handleInputFontSizeChange(1)} title="Increase font size"><FaPlus /></button>
+                    <button className="copy-btn" type="button" onClick={() => handleInputFontSizeChange(-1)} title="Decrease font size"><FaMinus /></button>
+                    <span className="copy-btn" onClick={() => setFormatInput(sampleJson)}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-load-sample">Load Sample JSON</Tooltip>}
@@ -748,7 +759,7 @@ const App = () => {
                         <FaFileCode />
                       </OverlayTrigger>
                     </span>
-                    <span class="copy-btn" onClick={() => copyToClipboard(formatInput)}>
+                    <span className="copy-btn" onClick={() => copyToClipboard(formatInput)}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-copy-format-input">Copy</Tooltip>}
@@ -756,7 +767,7 @@ const App = () => {
                         <FaCopy />
                       </OverlayTrigger>
                     </span>
-                    <span class="copy-btn" onClick={toggleWrapText}>
+                    <span className="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-wrap-text-format-input">Word Wrap</Tooltip>}
@@ -781,8 +792,9 @@ const App = () => {
                   value={formatInput}
                   name="format_input_editor"
                   editorProps={{ $blockScrolling: true }}
-                  height="650px"
+                  height="850px"
                   width="100%"
+                  fontSize={formatInputFontSize}
                   setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                 />
               </Form.Group>
@@ -794,10 +806,12 @@ const App = () => {
             </Col>}
             {formatOutputCol > 0 && <Col md={formatOutputCol}>
               <Form.Group>
-                <div class="editor-header">
-                  <Form.Label class="mb-0">Formatted JSON</Form.Label>
-                  <div class="d-flex align-items-center icon-group">
-                    <span class="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
+                <div className="editor-header">
+                  <Form.Label className="mb-0">Formatted JSON</Form.Label>
+                  <div className="icon-group">
+                    <button className="copy-btn" type="button" onClick={() => handleOutputFontSizeChange(1)} title="Increase font size"><FaPlus /></button>
+                    <button className="copy-btn" type="button" onClick={() => handleOutputFontSizeChange(-1)} title="Decrease font size"><FaMinus /></button>
+                    <span className="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-view-code">View as Code</Tooltip>}
@@ -805,7 +819,7 @@ const App = () => {
                         <FaCode />
                       </OverlayTrigger>
                     </span>
-                    <span class="copy-btn" onClick={() => setFormattedViewMode('tree')} active={formattedViewMode === 'tree'}>
+                    <span className="copy-btn" onClick={() => setFormattedViewMode('tree')} active={formattedViewMode === 'tree'}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-view-tree">View as Tree</Tooltip>}
@@ -813,7 +827,7 @@ const App = () => {
                         <FaSitemap />
                       </OverlayTrigger>
                     </span>
-                    <span class="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
+                    <span className="copy-btn" onClick={() => copyToClipboard(formattedOutput)}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-copy-formatted-output">Copy</Tooltip>}
@@ -821,7 +835,7 @@ const App = () => {
                         <FaCopy />
                       </OverlayTrigger>
                     </span>
-                    <span class="copy-btn" onClick={toggleWrapText}>
+                    <span className="copy-btn" onClick={toggleWrapText}>
                       <OverlayTrigger
                         placement="top"
                         overlay={<Tooltip id="tooltip-wrap-text-formatted-output">Word Wrap</Tooltip>}
@@ -846,14 +860,15 @@ const App = () => {
                     value={formattedOutput}
                     name="formatted_output_editor"
                     editorProps={{ $blockScrolling: true }}
-                    height="650px"
+                    height="850px"
                     width="100%"
+                    fontSize={formatOutputFontSize}
                     readOnly
                     setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
                   />
                 ) : (
                   <>
-                    <div className="json-tree-view-wrapper">
+                    <div className={`json-tree-view-wrapper font-size-${formatOutputFontSize}`} style={{height: '850px', minHeight: '850px', maxHeight: '850px'}}>
                       <Form.Control
                         type="text"
                         placeholder="Search in tree view..."

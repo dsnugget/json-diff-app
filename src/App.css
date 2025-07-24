@@ -452,3 +452,28 @@ body.dark .diff-removed {
   border: 1px solid #e0e0e0;
   background: #fff;
 }
+
+/* Font size classes for JSON tree view */
+.json-tree-view-wrapper.font-size-10 { font-size: 10px; }
+.json-tree-view-wrapper.font-size-11 { font-size: 11px; }
+.json-tree-view-wrapper.font-size-12 { font-size: 12px; }
+.json-tree-view-wrapper.font-size-13 { font-size: 13px; }
+.json-tree-view-wrapper.font-size-14 { font-size: 14px; }
+.json-tree-view-wrapper.font-size-15 { font-size: 15px; }
+.json-tree-view-wrapper.font-size-16 { font-size: 16px; }
+.json-tree-view-wrapper.font-size-17 { font-size: 17px; }
+.json-tree-view-wrapper.font-size-18 { font-size: 18px; }
+.json-tree-view-wrapper.font-size-19 { font-size: 19px; }
+.json-tree-view-wrapper.font-size-20 { font-size: 20px; }
+.json-tree-view-wrapper.font-size-21 { font-size: 21px; }
+.json-tree-view-wrapper.font-size-22 { font-size: 22px; }
+.json-tree-view-wrapper.font-size-23 { font-size: 23px; }
+.json-tree-view-wrapper.font-size-24 { font-size: 24px; }
+.json-tree-view-wrapper.font-size-25 { font-size: 25px; }
+.json-tree-view-wrapper.font-size-26 { font-size: 26px; }
+.json-tree-view-wrapper.font-size-27 { font-size: 27px; }
+.json-tree-view-wrapper.font-size-28 { font-size: 28px; }
+.json-tree-view-wrapper.font-size-29 { font-size: 29px; }
+.json-tree-view-wrapper.font-size-30 { font-size: 30px; }
+.json-tree-view-wrapper.font-size-31 { font-size: 31px; }
+.json-tree-view-wrapper.font-size-32 { font-size: 32px; }
