@@ -1290,9 +1290,6 @@ const App = () => {
             <Nav.Link eventKey="unescape">JSON Unescape</Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="diff" className="json-diff-tab">JSON Diff</Nav.Link>
-          </Nav.Item>
-          <Nav.Item>
             <Nav.Link eventKey="compress">Zstd Compress</Nav.Link>
           </Nav.Item>
           <Nav.Item>
