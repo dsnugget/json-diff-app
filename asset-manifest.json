@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/json-diff-app/static/css/main.d97559ce.css",
-    "main.js": "/json-diff-app/static/js/main.383a6343.js",
+    "main.css": "/json-diff-app/static/css/main.81fca4c8.css",
+    "main.js": "/json-diff-app/static/js/main.eeb68204.js",
     "static/js/510.88c5f569.chunk.js": "/json-diff-app/static/js/510.88c5f569.chunk.js",
     "static/media/zstd.wasm": "/json-diff-app/static/media/zstd.873ddd8944b409c00509.wasm",
     "index.html": "/json-diff-app/index.html",
-    "main.d97559ce.css.map": "/json-diff-app/static/css/main.d97559ce.css.map",
-    "main.383a6343.js.map": "/json-diff-app/static/js/main.383a6343.js.map",
+    "main.81fca4c8.css.map": "/json-diff-app/static/css/main.81fca4c8.css.map",
+    "main.eeb68204.js.map": "/json-diff-app/static/js/main.eeb68204.js.map",
     "510.88c5f569.chunk.js.map": "/json-diff-app/static/js/510.88c5f569.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.d97559ce.css",
-    "static/js/main.383a6343.js"
+    "static/css/main.81fca4c8.css",
+    "static/js/main.eeb68204.js"
   ]
 }
