@@ -477,3 +477,64 @@ body.dark .diff-removed {
 .json-tree-view-wrapper.font-size-30 { font-size: 30px; }
 .json-tree-view-wrapper.font-size-31 { font-size: 31px; }
 .json-tree-view-wrapper.font-size-32 { font-size: 32px; }
+
+/* Paint mode button styling */
+.copy-btn.active {
+  background-color: #007bff !important;
+  color: white !important;
+  border: 2px solid #0056b3 !important;
+}
+
+.copy-btn.active:hover {
+  background-color: #0056b3 !important;
+  color: white !important;
+}
+
+/* Color picker grid styling */
+.color-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 5px;
+  padding: 10px;
+  min-width: 120px;
+}
+
+.color-option {
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  cursor: pointer;
+  border: 2px solid #ddd;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.color-option:hover {
+  transform: scale(1.1);
+  border-color: #333;
+}
+
+.color-option.selected {
+  border: 3px solid #333;
+  transform: scale(1.2);
+}
+
+.color-option.selected::after {
+  content: '✓';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+}
+
+/* Annotation layer styling */
+.annotation-layer {
+  cursor: crosshair;
+}
+
+.annotation-layer:hover {
+  background-color: rgba(0, 123, 255, 0.05);
+}

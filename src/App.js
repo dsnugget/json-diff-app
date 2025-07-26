@@ -3,7 +3,7 @@ import { diff_match_patch } from 'diff-match-patch';
 import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus, FaPaintBrush, FaPalette } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -157,9 +157,66 @@ const App = () => {
   const [expandedSections, setExpandedSections] = useState(new Set());
   const [formatInputFontSize, setFormatInputFontSize] = useState(15);
   const [formatOutputFontSize, setFormatOutputFontSize] = useState(15);
+  const [paintMode, setPaintMode] = useState(false);
+  const [selectedColor, setSelectedColor] = useState('#ff0000');
+  const [annotations, setAnnotations] = useState([]);
+  const [isDrawing, setIsDrawing] = useState(false);
+  const [currentPath, setCurrentPath] = useState([]);
 
   const toggleWrapText = () => {
     setWrapTextEnabled((prev) => !prev);
+  };
+
+  const togglePaintMode = () => {
+    setPaintMode(prev => !prev);
+  };
+
+  const handleColorSelect = (color) => {
+    setSelectedColor(color);
+  };
+
+  const handleMouseDown = (event, editorName) => {
+    if (!paintMode) return;
+    
+    setIsDrawing(true);
+    const rect = event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    setCurrentPath([{ x, y, color: selectedColor }]);
+  };
+
+  const handleMouseMove = (event, editorName) => {
+    if (!paintMode || !isDrawing) return;
+    
+    const rect = event.target.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    setCurrentPath(prev => [...prev, { x, y, color: selectedColor }]);
+  };
+
+  const handleMouseUp = (event, editorName) => {
+    if (!paintMode || !isDrawing) return;
+    
+    setIsDrawing(false);
+    
+    if (currentPath.length > 1) {
+      const newAnnotation = {
+        id: Date.now(),
+        path: [...currentPath],
+        editor: editorName,
+        timestamp: new Date().toISOString()
+      };
+      
+      setAnnotations(prev => [...prev, newAnnotation]);
+    }
+    
+    setCurrentPath([]);
+  };
+
+  const clearAnnotations = () => {
+    setAnnotations([]);
   };
 
   const leftEditorRef = useRef(null);
@@ -741,6 +798,31 @@ const App = () => {
         setFormatOutputFontSize((prev) => Math.max(10, Math.min(32, prev + delta)));
       };
 
+      const colors = [
+        '#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff00ff', '#00ffff',
+        '#ffa500', '#800080', '#008000', '#ffc0cb', '#a52a2a', '#000000'
+      ];
+
+      const renderPath = (path, color) => {
+        if (path.length < 2) return null;
+        
+        const pathData = path.map((point, index) => {
+          if (index === 0) return `M ${point.x} ${point.y}`;
+          return `L ${point.x} ${point.y}`;
+        }).join(' ');
+        
+        return (
+          <path
+            d={pathData}
+            stroke={color}
+            strokeWidth="3"
+            fill="none"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        );
+      };
+
       return (
         <>
           <Row>
@@ -751,6 +833,48 @@ const App = () => {
                   <div className="icon-group">
                     <button className="copy-btn" type="button" onClick={() => handleInputFontSizeChange(1)} title="Increase font size"><FaPlus /></button>
                     <button className="copy-btn" type="button" onClick={() => handleInputFontSizeChange(-1)} title="Decrease font size"><FaMinus /></button>
+                    <span className={`copy-btn ${paintMode ? 'active' : ''}`} onClick={togglePaintMode}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-paint-mode">{paintMode ? 'Disable Paint Mode' : 'Enable Paint Mode'}</Tooltip>}
+                      >
+                        <FaPaintBrush />
+                      </OverlayTrigger>
+                    </span>
+                    {paintMode && (
+                      <Dropdown>
+                        <Dropdown.Toggle as="span" className="copy-btn">
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip-color-picker">Select Color</Tooltip>}
+                          >
+                            <FaPalette style={{ color: selectedColor }} />
+                          </OverlayTrigger>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          <div className="color-grid">
+                            {colors.map((color) => (
+                              <div
+                                key={color}
+                                className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                                style={{ backgroundColor: color }}
+                                onClick={() => handleColorSelect(color)}
+                              />
+                            ))}
+                          </div>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    )}
+                    {paintMode && (
+                      <span className="copy-btn" onClick={clearAnnotations}>
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id="tooltip-clear-annotations">Clear Annotations</Tooltip>}
+                        >
+                          <span style={{ fontSize: '12px', fontWeight: 'bold' }}>×</span>
+                        </OverlayTrigger>
+                      </span>
+                    )}
                     <span className="copy-btn" onClick={() => setFormatInput(sampleJson)}>
                       <OverlayTrigger
                         placement="top"
@@ -785,18 +909,54 @@ const App = () => {
                     </span>
                   </div>
                 </div>
-                <AceEditor
-                  mode="json"
-                  theme={theme === 'light' ? 'github' : 'dracula'}
-                  onChange={(value) => setFormatInput(value)}
-                  value={formatInput}
-                  name="format_input_editor"
-                  editorProps={{ $blockScrolling: true }}
-                  height="850px"
-                  width="100%"
-                  fontSize={formatInputFontSize}
-                  setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
-                />
+                <div className="editor-container" style={{ position: 'relative' }}>
+                  <AceEditor
+                    mode="json"
+                    theme={theme === 'light' ? 'github' : 'dracula'}
+                    onChange={(value) => setFormatInput(value)}
+                    value={formatInput}
+                    name="format_input_editor"
+                    editorProps={{ $blockScrolling: true }}
+                    height="850px"
+                    width="100%"
+                    fontSize={formatInputFontSize}
+                    setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
+                  />
+                  {paintMode && (
+                    <div 
+                      className="annotation-layer"
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        pointerEvents: 'auto',
+                        zIndex: 10
+                      }}
+                      onMouseDown={(e) => handleMouseDown(e, 'input')}
+                      onMouseMove={(e) => handleMouseMove(e, 'input')}
+                      onMouseUp={(e) => handleMouseUp(e, 'input')}
+                      onMouseLeave={(e) => handleMouseUp(e, 'input')}
+                    >
+                      <svg
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          width: '100%',
+                          height: '100%',
+                          pointerEvents: 'none'
+                        }}
+                      >
+                        {annotations.filter(ann => ann.editor === 'input').map((annotation) => 
+                          renderPath(annotation.path, annotation.path[0]?.color || selectedColor)
+                        )}
+                        {currentPath.length > 1 && renderPath(currentPath, selectedColor)}
+                      </svg>
+                    </div>
+                  )}
+                </div>
               </Form.Group>
             </Col>}
             {formatButtonCol > 0 && <Col md={formatButtonCol} className="d-flex flex-column align-items-center justify-content-center button-col-compact">
@@ -811,6 +971,48 @@ const App = () => {
                   <div className="icon-group">
                     <button className="copy-btn" type="button" onClick={() => handleOutputFontSizeChange(1)} title="Increase font size"><FaPlus /></button>
                     <button className="copy-btn" type="button" onClick={() => handleOutputFontSizeChange(-1)} title="Decrease font size"><FaMinus /></button>
+                    <span className={`copy-btn ${paintMode ? 'active' : ''}`} onClick={togglePaintMode}>
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip id="tooltip-paint-mode-output">{paintMode ? 'Disable Paint Mode' : 'Enable Paint Mode'}</Tooltip>}
+                      >
+                        <FaPaintBrush />
+                      </OverlayTrigger>
+                    </span>
+                    {paintMode && (
+                      <Dropdown>
+                        <Dropdown.Toggle as="span" className="copy-btn">
+                          <OverlayTrigger
+                            placement="top"
+                            overlay={<Tooltip id="tooltip-color-picker-output">Select Color</Tooltip>}
+                          >
+                            <FaPalette style={{ color: selectedColor }} />
+                          </OverlayTrigger>
+                        </Dropdown.Toggle>
+                        <Dropdown.Menu>
+                          <div className="color-grid">
+                            {colors.map((color) => (
+                              <div
+                                key={color}
+                                className={`color-option ${selectedColor === color ? 'selected' : ''}`}
+                                style={{ backgroundColor: color }}
+                                onClick={() => handleColorSelect(color)}
+                              />
+                            ))}
+                          </div>
+                        </Dropdown.Menu>
+                      </Dropdown>
+                    )}
+                    {paintMode && (
+                      <span className="copy-btn" onClick={clearAnnotations}>
+                        <OverlayTrigger
+                          placement="top"
+                          overlay={<Tooltip id="tooltip-clear-annotations-output">Clear Annotations</Tooltip>}
+                        >
+                          <span style={{ fontSize: '12px', fontWeight: 'bold' }}>×</span>
+                        </OverlayTrigger>
+                      </span>
+                    )}
                     <span className="copy-btn" onClick={() => setFormattedViewMode('code')} active={formattedViewMode === 'code'}>
                       <OverlayTrigger
                         placement="top"
@@ -854,21 +1056,57 @@ const App = () => {
                   </div>
                 </div>
                 {formattedViewMode === 'code' ? (
-                  <AceEditor
-                    mode="json"
-                    theme={theme === 'light' ? 'github' : 'dracula'}
-                    value={formattedOutput}
-                    name="formatted_output_editor"
-                    editorProps={{ $blockScrolling: true }}
-                    height="850px"
-                    width="100%"
-                    fontSize={formatOutputFontSize}
-                    readOnly
-                    setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
-                  />
+                  <div className="editor-container" style={{ position: 'relative' }}>
+                    <AceEditor
+                      mode="json"
+                      theme={theme === 'light' ? 'github' : 'dracula'}
+                      value={formattedOutput}
+                      name="formatted_output_editor"
+                      editorProps={{ $blockScrolling: true }}
+                      height="850px"
+                      width="100%"
+                      fontSize={formatOutputFontSize}
+                      readOnly
+                      setOptions={{ useWorker: false, fontFamily: 'Monaco', wrap: wrapTextEnabled }}
+                    />
+                    {paintMode && (
+                      <div 
+                        className="annotation-layer"
+                        style={{
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          pointerEvents: 'auto',
+                          zIndex: 10
+                        }}
+                        onMouseDown={(e) => handleMouseDown(e, 'output')}
+                        onMouseMove={(e) => handleMouseMove(e, 'output')}
+                        onMouseUp={(e) => handleMouseUp(e, 'output')}
+                        onMouseLeave={(e) => handleMouseUp(e, 'output')}
+                      >
+                        <svg
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                            height: '100%',
+                            pointerEvents: 'none'
+                          }}
+                        >
+                          {annotations.filter(ann => ann.editor === 'output').map((annotation) => 
+                            renderPath(annotation.path, annotation.path[0]?.color || selectedColor)
+                          )}
+                          {currentPath.length > 1 && renderPath(currentPath, selectedColor)}
+                        </svg>
+                      </div>
+                    )}
+                  </div>
                 ) : (
                   <>
-                    <div className={`json-tree-view-wrapper font-size-${formatOutputFontSize}`} style={{height: '850px', minHeight: '850px', maxHeight: '850px'}}>
+                    <div className={`json-tree-view-wrapper font-size-${formatOutputFontSize}`} style={{height: '850px', minHeight: '850px', maxHeight: '850px', position: 'relative'}}>
                       <Form.Control
                         type="text"
                         placeholder="Search in tree view..."
@@ -879,6 +1117,40 @@ const App = () => {
                       <div className="json-tree-view-container">
                         <JsonTreeView data={formattedOutput} searchTerm={treeSearchTerm} />
                       </div>
+                      {paintMode && (
+                        <div 
+                          className="annotation-layer"
+                          style={{
+                            position: 'absolute',
+                            top: 0,
+                            left: 0,
+                            right: 0,
+                            bottom: 0,
+                            pointerEvents: 'auto',
+                            zIndex: 10
+                          }}
+                          onMouseDown={(e) => handleMouseDown(e, 'tree')}
+                          onMouseMove={(e) => handleMouseMove(e, 'tree')}
+                          onMouseUp={(e) => handleMouseUp(e, 'tree')}
+                          onMouseLeave={(e) => handleMouseUp(e, 'tree')}
+                        >
+                          <svg
+                            style={{
+                              position: 'absolute',
+                              top: 0,
+                              left: 0,
+                              width: '100%',
+                              height: '100%',
+                              pointerEvents: 'none'
+                            }}
+                          >
+                            {annotations.filter(ann => ann.editor === 'tree').map((annotation) => 
+                              renderPath(annotation.path, annotation.path[0]?.color || selectedColor)
+                            )}
+                            {currentPath.length > 1 && renderPath(currentPath, selectedColor)}
+                          </svg>
+                        </div>
+                      )}
                     </div>
                   </>
                 )}
