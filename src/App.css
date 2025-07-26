@@ -538,3 +538,120 @@ body.dark .diff-removed {
 .annotation-layer:hover {
   background-color: rgba(0, 123, 255, 0.05);
 }
+
+/* Annotation overlay styling */
+.annotation-overlay {
+  cursor: crosshair;
+  /* Allow scroll events to pass through */
+  pointer-events: auto;
+}
+
+.annotation-overlay:hover {
+  background-color: rgba(0, 123, 255, 0.02);
+}
+
+/* Onboarding styles */
+.onboarding-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 999;
+  pointer-events: auto;
+}
+
+.onboarding-highlight {
+  background-color: rgba(0, 123, 255, 0.3);
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 123, 255, 0.5);
+}
+
+.onboarding-tooltip {
+  animation: fadeInUp 0.3s ease-out;
+}
+
+.onboarding-tooltip::before {
+  content: '';
+  position: absolute;
+  top: -8px;
+  left: 20px;
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-bottom: 8px solid #007bff;
+}
+
+.onboarding-tooltip::after {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 22px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid transparent;
+  border-right: 6px solid transparent;
+  border-bottom: 6px solid white;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.features-list {
+  text-align: left;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.features-list ul {
+  padding-left: 0;
+}
+
+.features-list li {
+  padding: 8px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.features-list li:last-child {
+  border-bottom: none;
+}
+
+.feature-bullet {
+  color: #007bff;
+  font-weight: bold;
+  margin-right: 8px;
+}
+
+/* Modal customization for onboarding */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  border-radius: 12px 12px 0 0;
+}
+
+.modal-header .btn-close {
+  filter: invert(1);
+}
+
+.modal-footer {
+  border-top: 1px solid #e9ecef;
+  background-color: #f8f9fa;
+  border-radius: 0 0 12px 12px;
+}

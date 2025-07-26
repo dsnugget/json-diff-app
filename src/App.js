@@ -1,9 +1,9 @@
 import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { diff_match_patch } from 'diff-match-patch';
-import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus, FaPaintBrush, FaPalette } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus, FaPaintBrush, FaPalette, FaQuestionCircle, FaTimes } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -162,6 +162,9 @@ const App = () => {
   const [annotations, setAnnotations] = useState([]);
   const [isDrawing, setIsDrawing] = useState(false);
   const [currentPath, setCurrentPath] = useState([]);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [onboardingStep, setOnboardingStep] = useState(0);
+  const tabRefs = useRef({});
 
   const toggleWrapText = () => {
     setWrapTextEnabled((prev) => !prev);
@@ -1830,31 +1833,147 @@ const App = () => {
     return null;
   };
 
+  useEffect(() => {
+    // Check if user has seen onboarding before
+    const hasSeenOnboarding = localStorage.getItem('jsonDiffAppOnboarding');
+    if (!hasSeenOnboarding) {
+      setShowOnboarding(true);
+    }
+  }, []);
+
+  const completeOnboarding = () => {
+    localStorage.setItem('jsonDiffAppOnboarding', 'true');
+    setShowOnboarding(false);
+    setOnboardingStep(0);
+  };
+
+  const nextOnboardingStep = () => {
+    setOnboardingStep(prev => prev + 1);
+  };
+
+  const prevOnboardingStep = () => {
+    setOnboardingStep(prev => prev - 1);
+  };
+
+  const getTabPosition = (tabKey) => {
+    const tabElement = tabRefs.current[tabKey];
+    if (tabElement) {
+      const rect = tabElement.getBoundingClientRect();
+      return {
+        top: rect.top,
+        left: rect.left,
+        width: rect.width,
+        height: rect.height
+      };
+    }
+    return null;
+  };
+
+  const onboardingSteps = [
+    {
+      tab: 'format',
+      title: 'JSON Formatter',
+      description: 'Format and beautify your JSON with proper indentation. Switch between code view and tree view for better readability.',
+      features: ['Format JSON with proper indentation', 'View as code or tree structure', 'Adjust font size', 'Paint annotations']
+    },
+    {
+      tab: 'minify',
+      title: 'JSON Minify',
+      description: 'Remove all unnecessary whitespace and formatting to create compact JSON for production use.',
+      features: ['Remove all whitespace', 'Compact JSON output', 'Perfect for production']
+    },
+    {
+      tab: 'validate',
+      title: 'JSON Validator',
+      description: 'Check if your JSON is syntactically correct and get detailed error messages if there are issues.',
+      features: ['Syntax validation', 'Error highlighting', 'Detailed error messages']
+    },
+    {
+      tab: 'unescape',
+      title: 'JSON Unescape',
+      description: 'Convert escaped JSON strings back to readable format and parse nested JSON structures.',
+      features: ['Unescape JSON strings', 'Parse nested JSON', 'Handle complex structures']
+    },
+    {
+      tab: 'jsondiff',
+      title: 'JSON Diff',
+      description: 'Compare two JSON objects side by side and see the differences highlighted with vivid colors.',
+      features: ['Side-by-side comparison', 'Vivid diff highlighting', 'Collapsible sections', 'Synchronized scrolling']
+    },
+    {
+      tab: 'compress',
+      title: 'Zstd Compress',
+      description: 'Compress your JSON data using Zstandard compression algorithm for efficient storage and transmission.',
+      features: ['Zstandard compression', 'Base64 output', 'Efficient data reduction']
+    },
+    {
+      tab: 'zstd',
+      title: 'Zstd Decompress',
+      description: 'Decompress Zstandard compressed data back to readable JSON format.',
+      features: ['Zstandard decompression', 'Base64 input support', 'Restore original JSON']
+    }
+  ];
+
   return (
     <>
       <Header theme={theme} toggleTheme={toggleTheme} />
       <Container fluid className="mt-4 pt-5 content-extra-padding">
         <Nav variant="tabs" activeKey={activeTab} onSelect={(k) => setActiveTab(k)}>
           <Nav.Item>
-            <Nav.Link eventKey="format">JSON Formatter</Nav.Link>
+            <Nav.Link 
+              eventKey="format" 
+              ref={el => tabRefs.current['format'] = el}
+            >
+              JSON Formatter
+            </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="minify">JSON Minify</Nav.Link>
+            <Nav.Link 
+              eventKey="minify" 
+              ref={el => tabRefs.current['minify'] = el}
+            >
+              JSON Minify
+            </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="validate">JSON Validator</Nav.Link>
+            <Nav.Link 
+              eventKey="validate" 
+              ref={el => tabRefs.current['validate'] = el}
+            >
+              JSON Validator
+            </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="unescape">JSON Unescape</Nav.Link>
+            <Nav.Link 
+              eventKey="unescape" 
+              ref={el => tabRefs.current['unescape'] = el}
+            >
+              JSON Unescape
+            </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="jsondiff">JSON Diff</Nav.Link>
+            <Nav.Link 
+              eventKey="jsondiff" 
+              ref={el => tabRefs.current['jsondiff'] = el}
+            >
+              JSON Diff
+            </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="compress">Zstd Compress</Nav.Link>
+            <Nav.Link 
+              eventKey="compress" 
+              ref={el => tabRefs.current['compress'] = el}
+            >
+              Zstd Compress
+            </Nav.Link>
           </Nav.Item>
           <Nav.Item>
-            <Nav.Link eventKey="zstd">Zstd Decompress</Nav.Link>
+            <Nav.Link 
+              eventKey="zstd" 
+              ref={el => tabRefs.current['zstd'] = el}
+            >
+              Zstd Decompress
+            </Nav.Link>
           </Nav.Item>
         </Nav>
         <div className="mt-3 content-bg">{renderContent()}</div>
@@ -1869,6 +1988,122 @@ const App = () => {
           </Toast.Body>
         </Toast>
       </ToastContainer>
+
+      {/* Onboarding Modal */}
+      <Modal 
+        show={showOnboarding} 
+        onHide={completeOnboarding}
+        size="lg"
+        centered
+        backdrop="static"
+        keyboard={false}
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            <FaQuestionCircle className="me-2" />
+            Welcome to JSON Diff App!
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {onboardingSteps[onboardingStep] && (
+            <div className="text-center">
+              <h4 className="mb-3">{onboardingSteps[onboardingStep].title}</h4>
+              <p className="mb-4">{onboardingSteps[onboardingStep].description}</p>
+              <div className="features-list">
+                <h6>Key Features:</h6>
+                <ul className="list-unstyled">
+                  {onboardingSteps[onboardingStep].features.map((feature, index) => (
+                    <li key={index} className="mb-2">
+                      <span className="feature-bullet">•</span> {feature}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <div className="d-flex justify-content-between align-items-center w-100">
+            <div>
+              <span className="text-muted">
+                Step {onboardingStep + 1} of {onboardingSteps.length}
+              </span>
+            </div>
+            <div>
+              {onboardingStep > 0 && (
+                <Button variant="outline-secondary" onClick={prevOnboardingStep} className="me-2">
+                  Previous
+                </Button>
+              )}
+              {onboardingStep < onboardingSteps.length - 1 ? (
+                <Button variant="primary" onClick={nextOnboardingStep}>
+                  Next
+                </Button>
+              ) : (
+                <Button variant="success" onClick={completeOnboarding}>
+                  Get Started!
+                </Button>
+              )}
+            </div>
+          </div>
+        </Modal.Footer>
+      </Modal>
+
+      {/* Onboarding Overlay */}
+      {showOnboarding && onboardingSteps[onboardingStep] && (() => {
+        const currentTab = onboardingSteps[onboardingStep].tab;
+        const tabPosition = getTabPosition(currentTab);
+        
+        return (
+          <div className="onboarding-overlay">
+            {tabPosition && (
+              <>
+                <div 
+                  className="onboarding-highlight"
+                  style={{
+                    position: 'absolute',
+                    top: tabPosition.top - 5,
+                    left: tabPosition.left - 5,
+                    width: tabPosition.width + 10,
+                    height: tabPosition.height + 10,
+                    zIndex: 1000,
+                    pointerEvents: 'none'
+                  }}
+                />
+                <div 
+                  className="onboarding-tooltip"
+                  style={{
+                    position: 'absolute',
+                    top: tabPosition.top + tabPosition.height + 10,
+                    left: tabPosition.left,
+                    width: '300px',
+                    zIndex: 1001,
+                    background: 'white',
+                    border: '2px solid #007bff',
+                    borderRadius: '8px',
+                    padding: '15px',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+                  }}
+                >
+                  <div className="d-flex justify-content-between align-items-start mb-2">
+                    <strong>{onboardingSteps[onboardingStep].title}</strong>
+                    <button 
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={completeOnboarding}
+                      style={{ padding: '2px 6px', fontSize: '12px' }}
+                    >
+                      <FaTimes />
+                    </button>
+                  </div>
+                  <p className="mb-0" style={{ fontSize: '14px' }}>
+                    {onboardingSteps[onboardingStep].description}
+                  </p>
+                </div>
+              </>
+            )}
+          </div>
+        );
+      })()}
     </>
   );
 };
