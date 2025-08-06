@@ -3,7 +3,7 @@ import { diff_match_patch } from 'diff-match-patch';
 import { Container, Row, Col, Form, Button, Card, Nav, Dropdown, Toast, ToastContainer, OverlayTrigger, Tooltip, Modal } from 'react-bootstrap';
 import AceEditor from 'react-ace';
 import ace from 'ace-builds';
-import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus, FaPaintBrush, FaPalette, FaQuestionCircle, FaTimes } from 'react-icons/fa';
+import { FaCopy, FaCode, FaSitemap, FaTextWidth, FaExpand, FaCompress, FaFileCode, FaPlus, FaMinus, FaPaintBrush, FaPalette, FaQuestionCircle, FaTimes, FaCheck } from 'react-icons/fa';
 import { unescapeString, parseRecursive } from './utils';
 import { init, compress, decompress } from '@bokuweb/zstd-wasm';
 import Header from './Header';
@@ -1981,9 +1981,10 @@ const App = () => {
 
       <Footer />
 
-      <ToastContainer position="bottom-end" className="p-3">
-        <Toast onClose={() => setShowToast(false)} show={showToast} delay={3000} autohide bg={toastVariant}>
-          <Toast.Body className="text-white">
+      <ToastContainer position="top-end" className="p-3" style={{ position: 'fixed', zIndex: 9999 }}>
+        <Toast onClose={() => setShowToast(false)} show={showToast} delay={5000} autohide bg={toastVariant === 'success' ? 'light' : toastVariant}>
+          <Toast.Body className={toastVariant === 'success' ? 'text-dark d-flex align-items-center' : 'text-white d-flex align-items-center'} style={toastVariant === 'success' ? { backgroundColor: '#d4edda', borderColor: '#c3e6cb', fontSize: '16px' } : { fontSize: '16px' }}>
+            {toastVariant === 'success' && <FaCheck className="me-2" style={{ color: '#28a745', fontSize: '20px' }} />}
             {toastMessage}
           </Toast.Body>
         </Toast>
